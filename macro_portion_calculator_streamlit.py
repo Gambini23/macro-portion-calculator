@@ -9,45 +9,33 @@ NutrientData = Dict[str, float]
 
 KCAL_PER_GRAM = {"carbs": 4, "protein": 4, "fat": 9}
 
-FOODS = {
- "Cornflakes": {"carbs": 84, "kcal": 370},
+FOODS_COLAZIONE = {
+    "Cornflakes": {"carbs": 84, "kcal": 370},
     "Pane integrale": {"carbs": 40, "kcal": 230},
-    "Frutta (media)": {"carbs": 12, "kcal": 50},
-    "Fiocchi/Farina d'avena": {"carbs": 60, "kcal": 370},
-    "Weetabix (formelle)": {"carbs": 67, "kcal": 360},
-    "Gallette di riso": {"carbs": 80, "kcal": 380},
+    "Fiocchi d'avena": {"carbs": 60, "kcal": 370},
     "Yogurt greco": {"protein": 10, "kcal": 60},
-    "Yogurt magro": {"protein": 5, "kcal": 40},
-    "Kefir": {"protein": 3.5, "kcal": 50},
-    "Uova intere": {"protein": 13, "kcal": 143, "weight": 60},
+    "Uova": {"protein": 13, "kcal": 143},
     "Albume": {"protein": 10, "kcal": 50},
-    "Proteine in polvere": {"protein": 85, "kcal": 360},
-    "Bresaola": {"protein": 32, "kcal": 151},
-    "Prosciutto cotto": {"protein": 20, "kcal": 145},
-    "Prosciutto crudo": {"protein": 25, "kcal": 250},
-    "Parmigiano": {"protein": 33, "kcal": 400},
-    "Cioccolato fondente": {"fat": 35, "kcal": 550},
-    "Mandorle": {"fat": 49, "kcal": 600},
-    "Noci": {"fat": 65, "kcal": 700},
-    "Mix frutta secca": {"fat": 55, "kcal": 650},
     "Burro di arachidi": {"fat": 50, "kcal": 600},
+    "Mandorle": {"fat": 49, "kcal": 600},
+    "Cioccolato fondente": {"fat": 35, "kcal": 550},
+}
+
+FOODS_PASTI = {
     "Pasta integrale": {"carbs": 70, "kcal": 350},
     "Riso": {"carbs": 78, "kcal": 360},
     "Cous cous": {"carbs": 72, "kcal": 350},
-    "Piadina confezionata": {"carbs": 45, "kcal": 300},
     "Patate crude": {"carbs": 17, "kcal": 80},
     "Gnocchi di patate": {"carbs": 30, "kcal": 150},
+    "Pane integrale": {"carbs": 40, "kcal": 230},
     "Carne bianca": {"protein": 22, "kcal": 120},
     "Carne rossa": {"protein": 26, "kcal": 180},
     "Pesce bianco": {"protein": 20, "kcal": 100},
-    "Pesce azzurro": {"protein": 22, "kcal": 120},
     "Pesce grasso": {"protein": 20, "kcal": 200},
-    "Formaggi magri": {"protein": 15, "kcal": 170},
-    "Affettati magri": {"protein": 30, "kcal": 140},
-    "Tofu al naturale": {"protein": 10, "kcal": 120},
-    "Tonno al naturale": {"protein": 25, "kcal": 120},
-    "Olio extravergine di oliva": {"fat": 100, "kcal": 900},
-    "Mix cereali/legumi": {"carbs": 55, "protein": 20, "kcal": 350},
+    "Tofu": {"protein": 10, "kcal": 120},
+    "Bresaola": {"protein": 32, "kcal": 151},
+    "Olio EVO": {"fat": 100, "kcal": 900},
+    "Mandorle": {"fat": 49, "kcal": 600}
 }
 
 def compute_macros(kcal: float, split: Dict[str, float]) -> Dict[str, float]:
@@ -56,11 +44,12 @@ def compute_macros(kcal: float, split: Dict[str, float]) -> Dict[str, float]:
         for macro, perc in split.items()
     }
 
-def suggest_foods(macros: Dict[str, float]) -> Dict[str, str]:
+def suggest_foods(macros: Dict[str, float], pasto: str) -> Dict[str, str]:
+    db = FOODS_COLAZIONE if pasto == "Colazione" else FOODS_PASTI
     suggestions = {}
     for macro, target in macros.items():
         found = []
-        for food, data in FOODS.items():
+        for food, data in db.items():
             if macro in data:
                 qty = round((target / data[macro]) * 100, 1)
                 found.append(f"{qty}g {food}")
@@ -72,18 +61,22 @@ def suggest_foods(macros: Dict[str, float]) -> Dict[str, str]:
 def generate_pdf(pasti: Dict[str, Dict]) -> str:
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", size=12)
+    pdf.set_font("Arial", 'B', 14)
 
     for pasto, data in pasti.items():
-        pdf.cell(200, 10, txt=f"Pasto: {pasto} ({int(data['kcal'])} kcal)", ln=True)
-        pdf.cell(200, 10, txt=f"Carboidrati: {data['macros']['carbs']}g", ln=True)
-        pdf.cell(200, 10, txt=f"Proteine: {data['macros']['protein']}g", ln=True)
-        pdf.cell(200, 10, txt=f"Grassi: {data['macros']['fat']}g", ln=True)
+        pdf.cell(0, 10, txt=f"{pasto.upper()} ({int(data['kcal'])} kcal)", ln=True)
+        pdf.set_font("Arial", '', 12)
+        pdf.cell(0, 10, txt=f"Carboidrati: {data['macros']['carbs']}g", ln=True)
+        pdf.cell(0, 10, txt=f"Proteine: {data['macros']['protein']}g", ln=True)
+        pdf.cell(0, 10, txt=f"Grassi: {data['macros']['fat']}g", ln=True)
         pdf.ln()
-        pdf.cell(200, 10, txt="Esempi alimenti:", ln=True)
+        pdf.set_font("Arial", 'B', 12)
+        pdf.cell(0, 10, txt="Esempi alimenti:", ln=True)
+        pdf.set_font("Arial", '', 12)
         for macro, items in data['foods'].items():
             pdf.multi_cell(0, 10, f"{macro.capitalize()}: {items}")
         pdf.ln(5)
+        pdf.set_font("Arial", 'B', 14)
 
     pdf.set_font("Arial", size=10)
     pdf.multi_cell(0, 8, """
@@ -119,7 +112,7 @@ if st.button("Genera piano pasti completo"):
     for nome, perc in zip(["Colazione", "Spuntino", "Pranzo", "Merenda", "Cena"], [perc_col, perc_spt, perc_prz, perc_mer, perc_cen]):
         kcal = kcal_total * (perc / 100)
         macros = compute_macros(kcal, split)
-        foods = suggest_foods(macros)
+        foods = suggest_foods(macros, nome)
         pasti[nome] = {"kcal": kcal, "macros": macros, "foods": foods}
 
         st.subheader(f"{nome}: {int(kcal)} kcal")
@@ -133,4 +126,5 @@ if st.button("Genera piano pasti completo"):
     pdf_path = generate_pdf(pasti)
     with open(pdf_path, "rb") as f:
         st.download_button("📄 Scarica piano pasti in PDF", f, file_name="piano_pasti.pdf")
+
 
