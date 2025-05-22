@@ -45,7 +45,7 @@ def compute_macros(kcal: float, split: Dict[str, float]) -> Dict[str, float]:
     }
 
 def suggest_foods(macros: Dict[str, float], pasto: str) -> Dict[str, str]:
-    db = FOODS_COLAZIONE if pasto == "Colazione" or "Spuntino" or "Merenda" else FOODS_PASTI
+    db = FOODS_COLAZIONE if pasto in ["Colazione", "Spuntino", "Merenda"] else FOODS_PASTI
     suggestions = {}
     for macro, target in macros.items():
         found = []
@@ -58,25 +58,30 @@ def suggest_foods(macros: Dict[str, float], pasto: str) -> Dict[str, str]:
         suggestions[macro] = " | ".join(found)
     return suggestions
 
-def generate_pdf(pasti: Dict[str, Dict]) -> str:
+def generate_pdf(pasti: Dict[str, Dict], kcal_total: float, split: Dict[str, float], distrib: Dict[str, float]) -> str:
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", 'B', 14)
+    pdf.cell(0, 10, txt=f"PIANO PASTI - {int(kcal_total)} kcal giornaliere", ln=True)
+    pdf.ln(4)
+    pdf.set_font("Arial", '', 11)
+    pdf.cell(0, 10, txt=f"Distribuzione macronutrienti: Carboidrati {int(split['carbs']*100)}% | Proteine {int(split['protein']*100)}% | Grassi {int(split['fat']*100)}%", ln=True)
+    pdf.ln(5)
 
     for pasto, data in pasti.items():
-        pdf.cell(0, 10, txt=f"{pasto.upper()} ({int(data['kcal'])} kcal)", ln=True)
-        pdf.set_font("Arial", '', 12)
+        pdf.set_font("Arial", 'B', 13)
+        pdf.cell(0, 10, txt=f"{pasto.upper()} ({int(distrib[pasto]*100)}% = {int(data['kcal'])} kcal)", ln=True)
+        pdf.set_font("Arial", '', 11)
         pdf.cell(0, 10, txt=f"Carboidrati: {data['macros']['carbs']}g", ln=True)
         pdf.cell(0, 10, txt=f"Proteine: {data['macros']['protein']}g", ln=True)
         pdf.cell(0, 10, txt=f"Grassi: {data['macros']['fat']}g", ln=True)
-        pdf.ln()
+        pdf.ln(2)
         pdf.set_font("Arial", 'B', 12)
         pdf.cell(0, 10, txt="Esempi alimenti:", ln=True)
-        pdf.set_font("Arial", '', 12)
+        pdf.set_font("Arial", '', 11)
         for macro, items in data['foods'].items():
-            pdf.multi_cell(0, 10, f"{macro.capitalize()}: {items}")
+            pdf.multi_cell(0, 8, f"{macro.capitalize()}: {items}")
         pdf.ln(5)
-        pdf.set_font("Arial", 'B', 14)
 
     pdf.set_font("Arial", size=10)
     pdf.multi_cell(0, 8, """
@@ -107,15 +112,16 @@ with colC: perc_fat = st.slider("% kcal Grassi", 0, 100, 30)
 
 if st.button("Genera piano pasti completo"):
     split = {"carbs": perc_carb/100, "protein": perc_pro/100, "fat": perc_fat/100}
+    distrib = {"Colazione": perc_col/100, "Spuntino": perc_spt/100, "Pranzo": perc_prz/100, "Merenda": perc_mer/100, "Cena": perc_cen/100}
     pasti = {}
 
-    for nome, perc in zip(["Colazione", "Spuntino", "Pranzo", "Merenda", "Cena"], [perc_col, perc_spt, perc_prz, perc_mer, perc_cen]):
-        kcal = kcal_total * (perc / 100)
+    for nome, perc in distrib.items():
+        kcal = kcal_total * perc
         macros = compute_macros(kcal, split)
         foods = suggest_foods(macros, nome)
         pasti[nome] = {"kcal": kcal, "macros": macros, "foods": foods}
 
-        st.subheader(f"{nome}: {int(kcal)} kcal")
+        st.subheader(f"{nome}: {int(kcal)} kcal ({int(perc*100)}%)")
         st.write(f"Carboidrati: {macros['carbs']}g")
         st.write(f"Proteine: {macros['protein']}g")
         st.write(f"Grassi: {macros['fat']}g")
@@ -123,8 +129,7 @@ if st.button("Genera piano pasti completo"):
         for macro, items in foods.items():
             st.write(f"**{macro.capitalize()}**: {items}")
 
-    pdf_path = generate_pdf(pasti)
+    pdf_path = generate_pdf(pasti, kcal_total, split, distrib)
     with open(pdf_path, "rb") as f:
         st.download_button("📄 Scarica piano pasti in PDF", f, file_name="piano_pasti.pdf")
-
 
