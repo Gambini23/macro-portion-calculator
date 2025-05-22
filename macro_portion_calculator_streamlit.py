@@ -45,7 +45,7 @@ def compute_macros(kcal: float, split: Dict[str, float]) -> Dict[str, float]:
     }
 
 def suggest_foods(macros: Dict[str, float], pasto: str) -> Dict[str, str]:
-    db = FOODS_COLAZIONE if pasto == "Colazione" else FOODS_PASTI
+    db = FOODS_COLAZIONE if pasto == "Colazione" or "Spuntino" or "Merenda" else FOODS_PASTI
     suggestions = {}
     for macro, target in macros.items():
         found = []
