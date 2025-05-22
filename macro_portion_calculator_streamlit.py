@@ -85,9 +85,26 @@ def generate_pdf(pasti: Dict[str, Dict], kcal_total: float, split: Dict[str, flo
 
     pdf.set_font("Arial", size=10)
     pdf.multi_cell(0, 8, """
-Il presente consiglio alimentare ha esclusivamente finalità informative.
-Non costituisce una prescrizione medica o dietetica personalizzata.
-Per una valutazione nutrizionale professionale, rivolgersi a un nutrizionista o medico.
+Il presente consiglio alimentare ha esclusivamente finalità informative ed esemplificative.
+Le combinazioni alimentari, le frequenze settimanali e le porzioni suggerite sono pensate
+per offrire un orientamento generale sulla distribuzione dei macronutrienti e non
+costituiscono in alcun modo una prescrizione o una somministrazione dietetica
+personalizzata.
+Le indicazioni contenute nel documento non tengono conto di eventuali allergie,
+intolleranze alimentari, patologie pregresse o condizioni cliniche specifiche, e pertanto
+non devono essere utilizzate come sostitutive del parere professionale di figure sanitarie
+abilitate, quali medici dietologi, biologi nutrizionisti o dietisti.
+Le dosi riportate sono state inserite a scopo didattico per fornire un esempio pratico
+riferito a un soggetto sano, di sesso ed età definiti, con finalità puramente illustrative in
+ambito sportivo e educativo.
+Le indicazioni nutrizionali qui esposte si basano su conoscenze acquisite tramite
+formazione in nutrizione sportiva, certificata presso Accademia Italiana Fitness e Sport
+Science Lab, nonché sugli attuali studi universitari in corso presso il corso di laurea in
+Scienze dell'Alimentazione e Gastronomia (Classe L-26) dell’Università Telematica San
+Raffaele.
+L’autore declina ogni responsabilità derivante da un uso improprio o non conforme delle
+informazioni contenute nel documento. Per una valutazione alimentare personalizzata, si
+raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vigente.
 """)
 
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
