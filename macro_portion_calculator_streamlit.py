@@ -98,7 +98,7 @@ L’autore declina ogni responsabilita' derivante da un uso improprio o non conf
 informazioni contenute nel documento. Per una valutazione alimentare personalizzata, si
 raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vigente.
 """)
-pdf = FPDF()
+    pdf = FPDF()
     pdf.add_font('DejaVu', 'B', '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', uni=True)
     pdf.add_font('DejaVu', '', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', uni=True)
     pdf.add_page()
