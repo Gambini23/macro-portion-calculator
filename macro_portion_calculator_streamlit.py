@@ -4,6 +4,7 @@ import streamlit as st
 from typing import Dict, List
 from fpdf import FPDF
 import tempfile
+import math
 
 NutrientData = Dict[str, float]
 
@@ -14,7 +15,7 @@ FOODS_COLAZIONE = {
     "Pane integrale": {"carbs": 40, "kcal": 230},
     "Fiocchi d'avena": {"carbs": 60, "kcal": 370},
     "Yogurt greco": {"protein": 10, "kcal": 60},
-    "Uova": {"protein": 13, "kcal": 143},
+    "Uova": {"protein": 13, "kcal": 143, "unit": 60},
     "Albume": {"protein": 10, "kcal": 50},
     "Burro di arachidi": {"fat": 50, "kcal": 600},
     "Mandorle": {"fat": 49, "kcal": 600},
@@ -34,15 +35,27 @@ FOODS_PASTI = {
     "Pesce grasso": {"protein": 20, "kcal": 200},
     "Tofu": {"protein": 10, "kcal": 120},
     "Bresaola": {"protein": 32, "kcal": 151},
-    "Olio EVO": {"fat": 100, "kcal": 900},
-    "Mandorle": {"fat": 49, "kcal": 600}
+    "Olio EVO": {"fat": 100, "kcal": 900}
 }
 
 def compute_macros(kcal: float, split: Dict[str, float]) -> Dict[str, float]:
+    adjusted_split = split.copy()
+    adjusted_split["fat"] *= 0.5  # riduzione del 50% sui grassi
     return {
         macro: round((kcal * perc) / KCAL_PER_GRAM[macro], 1)
-        for macro, perc in split.items()
+        for macro, perc in adjusted_split.items()
     }
+
+def round_5g(val: float) -> int:
+    return int(5 * round(val / 5))
+
+def egg_portion(grams: float) -> str:
+    if grams <= 70:
+        return "1 uovo"
+    elif grams <= 130:
+        return "2 uova"
+    else:
+        return f"{round_5g(grams)}g Uova"
 
 def suggest_foods(macros: Dict[str, float], pasto: str) -> Dict[str, str]:
     db = FOODS_COLAZIONE if pasto in ["Colazione", "Spuntino", "Merenda"] else FOODS_PASTI
@@ -51,8 +64,12 @@ def suggest_foods(macros: Dict[str, float], pasto: str) -> Dict[str, str]:
         found = []
         for food, data in db.items():
             if macro in data:
-                qty = round((target / data[macro]) * 100, 1)
-                found.append(f"{qty}g {food}")
+                qty = (target / data[macro]) * 100
+                if food == "Uova" and "unit" in data:
+                    text = egg_portion(qty)
+                else:
+                    text = f"{round_5g(qty)}g {food}"
+                found.append(text)
             if len(found) >= 3:
                 break
         suggestions[macro] = " | ".join(found)
@@ -65,7 +82,7 @@ def generate_pdf(pasti: Dict[str, Dict], kcal_total: float, split: Dict[str, flo
     pdf.cell(0, 10, txt=f"PIANO PASTI - {int(kcal_total)} kcal giornaliere", ln=True)
     pdf.ln(4)
     pdf.set_font("Arial", '', 11)
-    pdf.cell(0, 10, txt=f"Distribuzione macronutrienti: Carboidrati {int(split['carbs']*100)}% | Proteine {int(split['protein']*100)}% | Grassi {int(split['fat']*100)}%", ln=True)
+    pdf.cell(0, 10, txt=f"Distribuzione macronutrienti: Carboidrati {int(split['carbs']*100)}% | Proteine {int(split['protein']*100)}% | Grassi {int(split['fat']*50)}% (ridotto)", ln=True)
     pdf.ln(5)
 
     for pasto, data in pasti.items():
@@ -85,6 +102,7 @@ def generate_pdf(pasti: Dict[str, Dict], kcal_total: float, split: Dict[str, flo
 
     pdf.set_font("Arial", size=10)
     pdf.multi_cell(0, 8, """
+DISCLAIMER
 Il presente consiglio alimentare ha esclusivamente finalità informative ed esemplificative.
 Le combinazioni alimentari, le frequenze settimanali e le porzioni suggerite sono pensate
 per offrire un orientamento generale sulla distribuzione dei macronutrienti e non
