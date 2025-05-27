@@ -77,7 +77,7 @@ def suggest_foods(macros: Dict[str, float], pasto: str) -> Dict[str, str]:
 def generate_pdf(pasti: Dict[str, Dict], kcal_total: float, split: Dict[str, float], distrib: Dict[str, float]) -> str:
     disclaimer = ("""
 DISCLAIMER
-Il presente consiglio alimentare ha esclusivamente finalità informative ed esemplificative.
+Il presente consiglio alimentare ha esclusivamente finalita' informative ed esemplificative.
 Le combinazioni alimentari, le frequenze settimanali e le porzioni suggerite sono pensate
 per offrire un orientamento generale sulla distribuzione dei macronutrienti e non
 costituiscono in alcun modo una prescrizione o una somministrazione dietetica
@@ -91,10 +91,10 @@ riferito a un soggetto sano, di sesso ed età definiti, con finalità puramente 
 ambito sportivo e educativo.
 Le indicazioni nutrizionali qui esposte si basano su conoscenze acquisite tramite
 formazione in nutrizione sportiva, certificata presso Accademia Italiana Fitness e Sport
-Science Lab, nonché sugli attuali studi universitari in corso presso il corso di laurea in
+Science Lab, nonche' sugli attuali studi universitari in corso presso il corso di laurea in
 Scienze dell'Alimentazione e Gastronomia (Classe L-26) dell’Università Telematica San
 Raffaele.
-L’autore declina ogni responsabilità derivante da un uso improprio o non conforme delle
+L’autore declina ogni responsabilita' derivante da un uso improprio o non conforme delle
 informazioni contenute nel documento. Per una valutazione alimentare personalizzata, si
 raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vigente.
 """)
