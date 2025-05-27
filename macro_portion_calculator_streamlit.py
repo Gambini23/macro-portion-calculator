@@ -100,6 +100,7 @@ raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vig
 """)
 
     pdf = FPDF()
+    pdf.add_font('DejaVu', 'B', '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', uni=True)
     pdf.add_font('DejaVu', '', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', uni=True)
     pdf.add_page()
     pdf.set_font("DejaVu", 'B', 14)
