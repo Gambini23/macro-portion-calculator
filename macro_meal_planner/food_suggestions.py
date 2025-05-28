@@ -10,7 +10,7 @@ def suggest_foods(macros: Dict[str, float], pasto: str) -> Dict[str, str]:
 
         #  Salta la lista se fat < 5g
         if macro == "fat" and target < 5:
-            suggestions[macro] = "Grassi: quota coperta da altri alimenti"
+            suggestions[macro] = "Grassi: Quota coperta da altri alimenti"
             continue
 
         for food, data in db.items():
