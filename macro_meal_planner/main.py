@@ -41,7 +41,7 @@ if st.button("Genera piano pasti completo"):
         st.write(f"Carboidrati: {macros['carbs']}g")
         st.write(f"Proteine: {macros['protein']}g")
         st.write(f"Grassi: {macros['fat']}g")
-        t.markdown("### Esempi alimenti")
+        st.markdown("### Esempi alimenti")
         for macro, items in foods.items():
             if macro == "fat" and items.strip() == "":
                 st.write(f"**Grassi**: quota coperta da altri alimenti")
