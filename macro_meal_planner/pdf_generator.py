@@ -41,13 +41,9 @@ raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vig
         pdf.set_font("DejaVu", 'B', 13)  # <-- cambiato qui
         pdf.cell(0, 10, txt=f"{pasto.upper()} ({int(distrib[pasto]*100)}% = {int(data['kcal'])} kcal)", ln=True)
         pdf.set_font("DejaVu", '', 11)  # <-- cambiato qui
-        pdf.cell(0, 10, txt=f"Carboidrati: {data['macros']['carbs']}g", ln=True)
-        pdf.cell(0, 10, txt=f"Proteine: {data['macros']['protein']}g", ln=True)
         fat_val = data['macros']['fat']
-        if fat_val < 5:
-            pdf.cell(0, 10, txt="Grassi: quota coperta da altri alimenti", ln=True)
-        else:
-            pdf.cell(0, 10, txt=f"Grassi: {fat_val}g", ln=True)
+        fat_text = f"{fat_val}g" if fat_val >= 5 else "quota coperta da altri alimenti"
+        pdf.cell(0, 10, txt=f"Carboidrati: {data['macros']['carbs']}g | Proteine: {data['macros']['protein']}g | Grassi: {fat_text}", ln=True)
         pdf.ln(2)
         pdf.set_font("DejaVu", 'B', 12)  # <-- cambiato qui
         pdf.cell(0, 10, txt="Esempi alimenti:", ln=True)
