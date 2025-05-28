@@ -38,11 +38,9 @@ FOODS_PASTI = {
 KCAL_PER_GRAM = {"carbs": 4, "protein": 4, "fat": 9}
 
 def compute_macros(kcal: float, split: Dict[str, float]) -> Dict[str, float]:
-    adjusted_split = split.copy()
-    adjusted_split["fat"] *= 0.5
     return {
-        macro: round((kcal * perc) / KCAL_PER_GRAM[macro], 1)
-        for macro, perc in adjusted_split.items()
+        macro: round((kcal * perc) / KCAL_PER_GRAM[macro], 1) if macro != "fat" else round(((kcal * perc) / KCAL_PER_GRAM[macro]) * 0.5, 1)
+        for macro, perc in split.items()
     }
 
 def round_5g(val: float) -> int:
@@ -67,7 +65,8 @@ def suggest_foods(macros: Dict[str, float], pasto: str) -> Dict[str, str]:
                 if food == "Uova" and "unit" in data:
                     text = egg_portion(qty)
                 else:
-                    text = f"{round_5g(qty)}g {food}"
+                    g = round_5g(qty)
+                text = f"{g}g {food}" if g >= 5 else "Quantità già coperta da altri alimenti"
                 found.append(text)
             if len(found) >= 3:
                 break
@@ -98,6 +97,7 @@ L’autore declina ogni responsabilità derivante da un uso improprio o non conf
 informazioni contenute nel documento. Per una valutazione alimentare personalizzata, si
 raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vigente.
 """)
+
     pdf = FPDF()
     pdf.add_font('DejaVu', 'B', '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', uni=True)
     pdf.add_font('DejaVu', '', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', uni=True)
@@ -105,33 +105,33 @@ raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vig
     pdf.set_font("DejaVu", 'B', 14)
     pdf.cell(0, 10, txt=f"PIANO PASTI - {int(kcal_total)} kcal giornaliere", ln=True)
     pdf.ln(4)
-    pdf.set_font("DejaVu", '', 11)
+    pdf.set_font("Arial", '', 11)
     pdf.cell(0, 10, txt=f"Distribuzione macronutrienti: Carboidrati {int(split['carbs']*100)}% | Proteine {int(split['protein']*100)}% | Grassi {int(split['fat']*50)}% (ridotto)", ln=True)
     pdf.ln(5)
 
     for pasto, data in pasti.items():
-        pdf.set_font("DejaVu", 'B', 13)
+        pdf.set_font("Arial", 'B', 13)
         pdf.cell(0, 10, txt=f"{pasto.upper()} ({int(distrib[pasto]*100)}% = {int(data['kcal'])} kcal)", ln=True)
-        pdf.set_font("DejaVu", '', 11)
+        pdf.set_font("Arial", '', 11)
         pdf.cell(0, 10, txt=f"Carboidrati: {data['macros']['carbs']}g", ln=True)
         pdf.cell(0, 10, txt=f"Proteine: {data['macros']['protein']}g", ln=True)
         pdf.cell(0, 10, txt=f"Grassi: {data['macros']['fat']}g", ln=True)
         pdf.ln(2)
-        pdf.set_font("DejaVu", 'B', 12)
+        pdf.set_font("Arial", 'B', 12)
         pdf.cell(0, 10, txt="Esempi alimenti:", ln=True)
-        pdf.set_font("DejaVu", '', 11)
+        pdf.set_font("Arial", '', 11)
         for macro, items in data['foods'].items():
             pdf.multi_cell(0, 8, f"{macro.capitalize()}: {items}")
         pdf.ln(5)
 
     pdf.add_page()
-    pdf.set_font("DejaVu", 'B', 12)
+    pdf.set_font("Arial", 'B', 12)
     pdf.multi_cell(0, 10, disclaimer)
 
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
     pdf.output(tmp.name, "F")
     return tmp.name
-  
+
 # STREAMLIT UI
 st.title("Meal Macro Planner")
 
