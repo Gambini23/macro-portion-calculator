@@ -55,6 +55,9 @@ raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vig
     pdf.add_page()
     pdf.set_font("Arial", 'B', 14)
     pdf.cell(0, 10, "DISCLAIMER", ln=True)
+    
+    pdf.ln(2)  # Spazio dopo il titolo
+    
     pdf.set_font("Arial", '', 9)
     pdf.multi_cell(0, 5, disclaimer.strip())
     
