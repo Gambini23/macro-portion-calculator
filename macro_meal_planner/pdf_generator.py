@@ -2,7 +2,7 @@ from fpdf import FPDF
 import tempfile
 
 def generate_pdf(pasti, kcal_total, split, distrib):
-    disclaimer = """DISCLAIMER
+    disclaimer = """
 Il presente consiglio alimentare ha esclusivamente finalità informative ed esemplificative.
 Le combinazioni alimentari, le frequenze settimanali e le porzioni suggerite sono pensate
 per offrire un orientamento generale sulla distribuzione dei macronutrienti e non
@@ -58,7 +58,7 @@ raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vig
     pdf.set_font("DejaVu", 'B', 14)
     pdf.cell(0, 10, "DISCLAIMER", ln=True)
     pdf.ln(2)
-    pdf.set_font("DejaVu", '', 9)
+    pdf.set_font("DejaVu", '', 11)
     pdf.multi_cell(0, 5, disclaimer.strip())
 
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
