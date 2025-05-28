@@ -1,3 +1,6 @@
+from typing import Dict
+from food_data import FOODS_COLAZIONE, FOODS_PASTI
+from utils import round_5g, egg_portion
 def suggest_foods(macros: Dict[str, float], pasto: str) -> Dict[str, str]:
     db = FOODS_COLAZIONE if pasto in ["Colazione", "Spuntino", "Merenda"] else FOODS_PASTI
     suggestions = {}
