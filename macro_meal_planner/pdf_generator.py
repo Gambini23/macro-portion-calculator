@@ -29,14 +29,7 @@ raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vig
     pdf = FPDF()
     pdf.add_font('DejaVu', 'B', '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', uni=True)
     pdf.add_font('DejaVu', '', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', uni=True)
-    pdf.add_page()
-    pdf.set_font("DejaVu", 'B', 14)
-    pdf.cell(0, 10, "DISCLAIMER", ln=True)
-
-    pdf.ln(2)  # Spazio dopo il titolo
-
-    pdf.set_font("DejaVu", '', 9)
-    pdf.multi_cell(0, 5, disclaimer.strip())
+    
     
     for pasto, data in pasti.items():
         pdf.set_font("DejaVu", 'B', 13)  # <-- cambiato qui
@@ -54,14 +47,14 @@ raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vig
         pdf.ln(5)
     
     pdf.add_page()
-    pdf.set_font("Arial", 'B', 14)
+    pdf.set_font("DejaVu", 'B', 14)
     pdf.cell(0, 10, "DISCLAIMER", ln=True)
-    
-    pdf.ln(2)  # Spazio dopo il titolo
-    
-    pdf.set_font("Arial", '', 9)
+
+    pdf.ln(2)
+
+    pdf.set_font("DejaVu", '', 9)
     pdf.multi_cell(0, 5, disclaimer.strip())
-    
+
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
     pdf.output(tmp.name)
     return tmp.name
