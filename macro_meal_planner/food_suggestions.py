@@ -4,9 +4,15 @@ from utils import round_5g, unit_portion
 def suggest_foods(macros: Dict[str, float], pasto: str) -> Dict[str, str]:
     db = FOODS_COLAZIONE if pasto in ["Colazione", "Spuntino", "Merenda"] else FOODS_PASTI
     suggestions = {}
-    
+
     for macro, target in macros.items():
         found = []
+
+        #  Salta la lista se fat < 5g
+        if macro == "fat" and target < 5:
+            suggestions[macro] = "Grassi: quota coperta da altri alimenti"
+            continue
+
         for food, data in db.items():
             if macro in data:
                 qty = (target / data[macro]) * 100
@@ -19,5 +25,5 @@ def suggest_foods(macros: Dict[str, float], pasto: str) -> Dict[str, str]:
                     if g >= 5:
                         found.append(f"{g}g {food}")
         suggestions[macro] = " | ".join(found)
-    
+
     return suggestions
