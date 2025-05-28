@@ -34,7 +34,7 @@ raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vig
     pdf.cell(0, 10, txt=f"PIANO PASTI - {int(kcal_total)} kcal giornaliere", ln=True)
     pdf.ln(4)
     pdf.set_font("DejaVu", '', 11)  # <-- cambiato qui
-    pdf.cell(0, 10, txt=f"Distribuzione macronutrienti: Carboidrati {int(split['carbs']*100)}% | Proteine {int(split['protein']*100)}% | Grassi {int(split['fat']*50)}% (ridotto)", ln=True)
+    pdf.cell(0, 10, txt=f"Distribuzione macronutrienti: Carboidrati {int(split['carbs']*100)}% | Proteine {int(split['protein']*100)}% | Grassi {int(split['fat']*50)}%", ln=True)
     pdf.ln(5)
     
     for pasto, data in pasti.items():
