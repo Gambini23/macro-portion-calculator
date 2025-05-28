@@ -153,10 +153,12 @@ with colA: perc_pro = st.slider("% kcal Proteine", 0, 100, 20)
 with colB: perc_carb = st.slider("% kcal Carboidrati", 0, 100, 50)
 with colC: perc_fat = st.slider("% kcal Grassi", 0, 100, 30)
 with st.columns(1)[0]:
-    st.markdown(f"**Grammatura corrispondente:**
-Carboidrati: {round((kcal_total * (perc_carb / 100)) / 4, 1)}g
-Proteine: {round((kcal_total * (perc_pro / 100)) / 4, 1)}g
-Grassi: {round((kcal_total * (perc_fat / 100)) / 9, 1)}g")
+    st.markdown(
+    "**Grammatura corrispondente:**  \n"
+    f"Carboidrati: {round((kcal_total * (perc_carb / 100)) / 4, 1)}g  \n"
+    f"Proteine: {round((kcal_total * (perc_pro / 100)) / 4, 1)}g  \n"
+    f"Grassi: {round((kcal_total * (perc_fat / 100)) / 9, 1)}g"
+)
 
 if st.button("Genera piano pasti completo"):
     split = {"carbs": perc_carb/100, "protein": perc_pro/100, "fat": perc_fat/100}
