@@ -16,7 +16,5 @@ def suggest_foods(macros: Dict[str, float], pasto: str) -> Dict[str, str]:
                     g = round_5g(qty)
                     text = f"{g}g {food}" if g >= 5 else "Quantità già coperta da altri alimenti"
                 found.append(text)
-            if len(found) >= 3:
-                break
         suggestions[macro] = " | ".join(found)
     return suggestions
