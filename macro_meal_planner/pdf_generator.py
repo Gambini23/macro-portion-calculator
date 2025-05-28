@@ -53,8 +53,10 @@ raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vig
         pdf.ln(5)
     
     pdf.add_page()
-    pdf.set_font("DejaVu", 'B', 12)  # <-- cambiato qui
-    pdf.multi_cell(0, 10, disclaimer)
+    pdf.set_font("Arial", 'B', 14)
+    pdf.cell(0, 10, "DISCLAIMER", ln=True)
+    pdf.set_font("Arial", '', 9)
+    pdf.multi_cell(0, 5, disclaimer.strip())
     
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
     pdf.output(tmp.name)
