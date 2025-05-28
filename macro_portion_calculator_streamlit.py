@@ -115,7 +115,11 @@ raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vig
         pdf.set_font("Arial", '', 11)
         pdf.cell(0, 10, txt=f"Carboidrati: {data['macros']['carbs']}g", ln=True)
         pdf.cell(0, 10, txt=f"Proteine: {data['macros']['protein']}g", ln=True)
-        pdf.cell(0, 10, txt=f"Grassi: {data['macros']['fat']}g", ln=True)
+        fat_val = data['macros']['fat']
+        if fat_val < 5:
+            pdf.cell(0, 10, txt="Grassi: quota coperta da altri alimenti", ln=True)
+        else:
+            pdf.cell(0, 10, txt=f"Grassi: {fat_val}g", ln=True)
         pdf.ln(2)
         pdf.set_font("Arial", 'B', 12)
         pdf.cell(0, 10, txt="Esempi alimenti:", ln=True)
@@ -144,10 +148,15 @@ with col3: perc_prz = st.slider("% Pranzo", 0, 100, 39)
 with col4: perc_mer = st.slider("% Merenda", 0, 100, 7)
 with col5: perc_cen = st.slider("% Cena", 0, 100, 33)
 
-colA, colB, colC = st.columns(3)
+colA, colB, colC = st.columns(4)
 with colA: perc_pro = st.slider("% kcal Proteine", 0, 100, 20)
 with colB: perc_carb = st.slider("% kcal Carboidrati", 0, 100, 50)
 with colC: perc_fat = st.slider("% kcal Grassi", 0, 100, 30)
+with st.columns(1)[0]:
+    st.markdown(f"**Grammatura corrispondente:**
+Carboidrati: {round((kcal_total * (perc_carb / 100)) / 4, 1)}g
+Proteine: {round((kcal_total * (perc_pro / 100)) / 4, 1)}g
+Grassi: {round((kcal_total * (perc_fat / 100)) / 9, 1)}g")
 
 if st.button("Genera piano pasti completo"):
     split = {"carbs": perc_carb/100, "protein": perc_pro/100, "fat": perc_fat/100}
@@ -171,3 +180,4 @@ if st.button("Genera piano pasti completo"):
     pdf_path = generate_pdf(pasti, kcal_total, split, distrib)
     with open(pdf_path, "rb") as f:
         st.download_button("📄 Scarica piano pasti in PDF", f, file_name="piano_pasti.pdf")
+
