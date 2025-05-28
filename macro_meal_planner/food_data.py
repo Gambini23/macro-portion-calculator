@@ -1,26 +1,29 @@
 FOODS_COLAZIONE = {
+   FOODS_COLAZIONE = {
     "Cornflakes": {"carbs": 84, "kcal": 370},
     "Pane integrale": {"carbs": 40, "kcal": 230},
     "Fiocchi d'avena": {"carbs": 60, "kcal": 370},
-"Farina d'avena": {"carbs": 66, "kcal": 375},
-"Frutta": {"carbs": 13, "kcal": 52},
-"Gallette di riso": {"carbs": 80, "kcal": 381, "unit": 7},
-"Weetabix": {"carbs": 69, "kcal": 362, "unit": 19}
+    "Farina d'avena": {"carbs": 66, "kcal": 375},
+    "Frutta": {"carbs": 13, "kcal": 52},
+    "Gallette di riso": {"carbs": 80, "kcal": 381, "unit": 7},
+    "Weetabix": {"carbs": 69, "kcal": 362, "unit": 19},
     "Yogurt greco": {"protein": 10, "kcal": 60},
-"Yogurt magro": {"protein": 5, "kcal": 63}
+    "Yogurt magro": {"protein": 5, "kcal": 63},
     "Uova": {"protein": 13, "kcal": 143, "unit": 60},
     "Albume": {"protein": 10, "kcal": 50},
-"Bresaola": {"protein": 32, "kcal": 151}
-"Prosciutto cotto": {"protein": 20, "kcal": 145},
-"Prosciutto crudo": {"protein": 28, "kcal": 215},
-"Ricotta light": {"protein": 11, "kcal": 136},
-"Proteine in polvere": {"protein": 78, "kcal": 390},
+    "Bresaola": {"protein": 32, "kcal": 151},
+    "Prosciutto cotto": {"protein": 20, "kcal": 145},
+    "Prosciutto crudo": {"protein": 28, "kcal": 215},
+    "Ricotta light": {"protein": 11, "kcal": 136},
+    "Proteine in polvere": {"protein": 78, "kcal": 390},
     "Burro di arachidi": {"fat": 50, "kcal": 588},
     "Mandorle": {"fat": 49, "kcal": 600},
-"Noci": {"fat": 65, "kcal": 654},
-"Avocado": {"fat": 15, "kcal": 160},
+    "Noci": {"fat": 65, "kcal": 654},
+    "Avocado": {"fat": 15, "kcal": 160},
     "Cioccolato fondente": {"fat": 35, "kcal": 550},
 }
+
+
 
 FOODS_PASTI = {
     "Pasta integrale": {"carbs": 70, "kcal": 350},
