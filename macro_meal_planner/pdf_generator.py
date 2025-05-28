@@ -51,7 +51,7 @@ raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vig
         pdf.set_font("DejaVu", '', 11)
         for macro, items in data['foods'].items():
             if macro == "fat" and items.strip() == "":
-                pdf.multi_cell(0, 8, "Grassi: quota coperta da altri alimenti")
+                pdf.multi_cell(0, 8, "")
             else:
                 pdf.multi_cell(0, 8, f"{macro.capitalize()}: {items}")
         
