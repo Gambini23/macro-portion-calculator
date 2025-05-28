@@ -44,7 +44,7 @@ if st.button("Genera piano pasti completo"):
         st.markdown("### Esempi alimenti")
         for macro, items in foods.items():
             if macro == "fat" and items.strip() == "":
-                st.write(f"**Grassi**: quota coperta da altri alimenti")
+                st.write(f"**Grassi**: Quota coperta da altri alimenti")
             else:
                 st.write(f"**{macro.capitalize()}**: {items}")
 
