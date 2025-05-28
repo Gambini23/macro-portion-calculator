@@ -17,6 +17,5 @@ def suggest_foods(macros: Dict[str, float], pasto: str) -> Dict[str, str]:
                     if g >= 5:
                         text = f"{g}g {food}"
                         found.append(text)
-                    # Se la quantità è troppo piccola, non aggiungo nulla
-        suggestions[macro] = " | ".join(found) if found else "Quantità già coperta da altri alimenti"
+        suggestions[macro] = " | ".join(found)  # anche stringa vuota se nessun alimento
     return suggestions
