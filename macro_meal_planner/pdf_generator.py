@@ -61,5 +61,5 @@ raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vig
     pdf.multi_cell(0, 10, disclaimer)
 
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
-    pdf.output(tmp.name, "F")
+    pdf.output(tmp.name)
     return tmp.name
