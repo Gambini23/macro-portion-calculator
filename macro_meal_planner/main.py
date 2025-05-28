@@ -41,9 +41,12 @@ if st.button("Genera piano pasti completo"):
         st.write(f"Carboidrati: {macros['carbs']}g")
         st.write(f"Proteine: {macros['protein']}g")
         st.write(f"Grassi: {macros['fat']}g")
-        st.markdown("### Esempi alimenti")
+        t.markdown("### Esempi alimenti")
         for macro, items in foods.items():
-            st.write(f"**{macro.capitalize()}**: {items}")
+            if macro == "fat" and items.strip() == "":
+                st.write(f"**Grassi**: quota coperta da altri alimenti")
+            else:
+                st.write(f"**{macro.capitalize()}**: {items}")
 
     pdf_path = generate_pdf(pasti, kcal_total, split, distrib)
     with open(pdf_path, "rb") as f:
