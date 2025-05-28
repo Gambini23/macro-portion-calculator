@@ -14,7 +14,7 @@ with col3: perc_prz = st.slider("% Pranzo", 0, 100, 39)
 with col4: perc_mer = st.slider("% Merenda", 0, 100, 7)
 with col5: perc_cen = st.slider("% Cena", 0, 100, 33)
 
-colA, colB, colC = st.columns(4)
+colA, colB, colC = st.columns(3)
 with colA: perc_pro = st.slider("% kcal Proteine", 0, 100, 20)
 with colB: perc_carb = st.slider("% kcal Carboidrati", 0, 100, 50)
 with colC: perc_fat = st.slider("% kcal Grassi", 0, 100, 30)
