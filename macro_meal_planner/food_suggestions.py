@@ -1,52 +1,37 @@
 from typing import Dict
-from food_data import FOODS_COLAZIONE, FOODS_PASTI, KCAL_PER_GRAM
+from food_data import FOODS_COLAZIONE, FOODS_PASTI
 
-def unit_portion(qty: float, unit_weight: float, food_name: str) -> str:
-    unit_qty = qty / unit_weight
-    rounded = round(unit_qty)
-    if abs(unit_qty - rounded) <= 0.2:
-        unit_qty = rounded
-    if unit_qty >= 1:
-        return f"{int(unit_qty)} {food_name}"
-    else:
-        return f"{round(qty)}g {food_name}"
-
-def suggest_foods(macros_kcal: Dict[str, float], pasto: str) -> Dict[str, str]:
+def suggest_foods(kcal_pasto: float, pasto: str, split: Dict[str, float]) -> Dict[str, str]:
     """
-    macros_kcal: kcal da coprire per macro, es {"protein": 200, "carbs": 500, "fat": 300}
-    pasto: nome pasto (es. "Colazione", "Pranzo", ecc)
-    
-    Ritorna dict con stringhe di alimenti+grammature per ogni macro
+    Per ogni macro calcola la grammatura degli alimenti per coprire kcal macro.
+    Restituisce dict con macro: stringa elenco alimenti con grammatura.
     """
     db = FOODS_COLAZIONE if pasto in ["Colazione", "Spuntino", "Merenda"] else FOODS_PASTI
 
-    result = {"carbs": [], "protein": [], "fat": []}
+    result = {"protein": [], "carbs": [], "fat": []}
 
-    for macro in ["carbs", "protein", "fat"]:
-        kcal_to_cover = macros_kcal.get(macro, 0)
-        if kcal_to_cover <= 0:
-            continue
+    for macro in ["protein", "carbs", "fat"]:
+        kcal_macro = kcal_pasto * split[macro]
 
-        # Filtra alimenti che contengono quel macro
-        foods_macro = {food: data for food, data in db.items() if macro in data}
+        for food, data in db.items():
+            if macro in data:
+                kcal_100g = data.get("kcal", data[macro] * (9 if macro == "fat" else 4))
 
-        for food, data in foods_macro.items():
-            kcal_macro_100g = data[macro] * KCAL_PER_GRAM[macro]
-            if kcal_macro_100g == 0:
-                continue
+                grammi = kcal_macro / kcal_100g * 100
+                grammi = round(grammi, 1)
 
-            # Calcola grammi per raggiungere kcal_to_cover
-            qty = (kcal_to_cover / kcal_macro_100g) * 100
+                if "unit" in data:
+                    unit_weight = data["unit"]
+                    units = grammi / unit_weight
+                    units = round(units, 1)
+                    portion = f"{units} unità" if units >= 0.1 else f"{grammi}g"
+                else:
+                    portion = f"{grammi}g"
 
-            if "unit" in data:
-                txt = unit_portion(qty, data["unit"], food)
-            else:
-                # arrotondo a multipli di 5g per praticità, minimo 5g
-                qty_5g = max(5, round(qty / 5) * 5)
-                txt = f"{qty_5g}g {food}"
+                result[macro].append(f"{portion} {food}")
 
-            result[macro].append(txt)
+    for macro in result:
+        result[macro] = " | ".join(result[macro])
 
-    # Unisco le liste in stringhe con separatore pipe
-    return {macro: " | ".join(items) for macro, items in result.items()}
+    return result
 
