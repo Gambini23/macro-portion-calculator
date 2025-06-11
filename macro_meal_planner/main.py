@@ -1,12 +1,13 @@
 import streamlit as st
+from macros import compute_macros
 from food_suggestions import suggest_foods
 from pdf_generator import generate_pdf
 
 st.title("Meal Macro Planner")
 
 kcal_total = st.number_input("Kcal giornaliere", min_value=1000, max_value=4000, value=1600)
-
 col1, col2, col3, col4, col5 = st.columns(5)
+
 with col1: perc_col = st.slider("% Colazione", 0, 100, 16)
 with col2: perc_spt = st.slider("% Spuntino", 0, 100, 5)
 with col3: perc_prz = st.slider("% Pranzo", 0, 100, 39)
@@ -39,17 +40,29 @@ if st.button("Genera piano pasti completo"):
 
     for nome, perc in distrib.items():
         kcal = kcal_total * perc
+        macros = compute_macros(kcal, split)
+        foods = suggest_foods(kcal, nome)
 
-        foods = suggest_foods(kcal, nome, split)
-        pasti[nome] = {"kcal": kcal, "foods": foods}
+        pasti[nome] = {"kcal": kcal, "macros": macros, "foods": foods}
 
-        st.subheader(f"{nome}: {int(kcal)} kcal ({int(perc*100)}%)")
+        st.subheader(f"{nome}: {int(kcal)} kcal ({int(perc * 100)}%)")
+
+        # Mostra grammi arrotondati a multipli di 5 per ogni macro
         for macro in ["protein", "carbs", "fat"]:
             kcal_macro = kcal * split[macro]
-            st.write(f"{macro.capitalize()} (kcal): {int(kcal_macro)}")
+            if macro == "fat":
+                grams = kcal_macro / 9
+            else:
+                grams = kcal_macro / 4
+            grams_rounded = 5 * round(grams / 5)
+            st.write(f"{macro.capitalize()}: {grams_rounded}g")
+
         st.markdown("### Esempi alimenti per macro")
         for macro, items in foods.items():
-            st.write(f"{macro.capitalize()}: {items}")
+            if macro == "fat" and items.strip() == "":
+                st.write(f"**Grassi**: Quota coperta da altri alimenti")
+            else:
+                st.write(f"**{macro.capitalize()}**: {items}")
 
     pdf_path = generate_pdf(pasti, kcal_total, split, distrib)
     with open(pdf_path, "rb") as f:
