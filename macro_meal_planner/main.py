@@ -46,7 +46,7 @@ if st.button("Genera piano pasti completo"):
             "fat": round((kcal_pasto * split["fat"]) / 9, 1),
         }
         # Passo grammi macro e kcal per il pasto
-        foods = suggest_foods(macros_pasto, nome, kcal_pasto)
+        foods = suggest_foods(kcal, nome) 
         pasti[nome] = {"kcal": kcal_pasto, "macros": macros_pasto, "foods": foods}
 
         st.subheader(f"{nome}: {int(kcal_pasto)} kcal ({int(perc*100)}%)")
