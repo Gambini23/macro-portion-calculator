@@ -18,8 +18,8 @@ colA, colB, colC = st.columns(3)
 with colA: perc_pro = st.slider("% kcal Proteine", 0, 100, 20)
 with colB: perc_carb = st.slider("% kcal Carboidrati", 0, 100, 50)
 with colC: perc_fat = st.slider("% kcal Grassi", 0, 100, 30)
-with st.columns(1)[0]:
-    st.markdown(
+
+st.markdown(
     "**Grammatura corrispondente:**  \n"
     f"Carboidrati: {round((kcal_total * (perc_carb / 100)) / 4, 1)}g  \n"
     f"Proteine: {round((kcal_total * (perc_pro / 100)) / 4, 1)}g  \n"
@@ -27,23 +27,30 @@ with st.columns(1)[0]:
 )
 
 if st.button("Genera piano pasti completo"):
-    split = {"carbs": perc_carb/100, "protein": perc_pro/100, "fat": perc_fat/100}
-    distrib = {"Colazione": perc_col/100, "Spuntino": perc_spt/100, "Pranzo": perc_prz/100, "Merenda": perc_mer/100, "Cena": perc_cen/100}
+    split = {"carbs": perc_carb / 100, "protein": perc_pro / 100, "fat": perc_fat / 100}
+    distrib = {
+        "Colazione": perc_col / 100,
+        "Spuntino": perc_spt / 100,
+        "Pranzo": perc_prz / 100,
+        "Merenda": perc_mer / 100,
+        "Cena": perc_cen / 100,
+    }
     pasti = {}
 
     for nome, perc in distrib.items():
         kcal = kcal_total * perc
         macros = compute_macros(kcal, split)
-        foods = suggest_foods(macros, nome)
+        foods = suggest_foods(macros, nome, kcal, split)  # Passo kcal e split per calcolo corretto
         pasti[nome] = {"kcal": kcal, "macros": macros, "foods": foods}
 
-        st.subheader(f"{nome}: {int(kcal)} kcal ({int(perc*100)}%)")
-        st.write(f"Carboidrati: {macros['carbs']}g")
-        st.write(f"Proteine: {macros['protein']}g")
-        st.write(f"Grassi: {macros['fat']}g")
+        st.subheader(f"{nome}: {int(kcal)} kcal ({int(perc * 100)}%)")
+        st.write(f"Carboidrati: {round(macros['carbs'], 1)}g")
+        st.write(f"Proteine: {round(macros['protein'], 1)}g")
+        st.write(f"Grassi: {round(macros['fat'], 1)}g")
         st.markdown("### Esempi alimenti")
         for macro, items in foods.items():
-            if macro == "fat" and items.strip() == "":
+            # Se lista fats è vuota o contiene solo "quota coperta" la sostituisco con testo
+            if macro == "fat" and (items.strip() == "" or "quota coperta" in items.lower()):
                 st.write(f"**Grassi**: Quota coperta da altri alimenti")
             else:
                 st.write(f"**{macro.capitalize()}**: {items}")
@@ -51,3 +58,4 @@ if st.button("Genera piano pasti completo"):
     pdf_path = generate_pdf(pasti, kcal_total, split, distrib)
     with open(pdf_path, "rb") as f:
         st.download_button("📄 Scarica piano pasti in PDF", f, file_name="piano_pasti.pdf")
+
