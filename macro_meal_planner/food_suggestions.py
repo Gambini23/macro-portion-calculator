@@ -2,36 +2,45 @@ from typing import Dict
 from food_data import FOODS_COLAZIONE, FOODS_PASTI
 from utils import round_5g, unit_portion
 
-KCAL_PER_GRAM = {"carbs": 4, "protein": 4, "fat": 9}
-
-def calculate_qty_for_macro_kcal(kcal_target: float, macro_amount_per_100g: float, macro_name: str) -> float:
-    kcal_per_100g_macro = macro_amount_per_100g * KCAL_PER_GRAM[macro_name]
-    if kcal_per_100g_macro == 0:
-        return 0
-    qty = (kcal_target / kcal_per_100g_macro) * 100
-    return qty
-
-def suggest_foods(macros: Dict[str, float], pasto: str, kcal_pasto: float, split: Dict[str, float]) -> Dict[str, str]:
+def suggest_foods(macros: Dict[str, float], pasto: str) -> Dict[str, str]:
+    """
+    Suggerisce alimenti con grammature calcolate per coprire il fabbisogno kcal del macro nel pasto.
+    """
     db = FOODS_COLAZIONE if pasto in ["Colazione", "Spuntino", "Merenda"] else FOODS_PASTI
     suggestions = {}
 
     for macro, target_g in macros.items():
-        kcal_macro = kcal_pasto * split[macro]  # kcal da quel macro nel pasto
+        # kcal da coprire per questo macro
+        if macro == "carbs" or macro == "protein":
+            kcal_target = target_g * 4
+        elif macro == "fat":
+            kcal_target = target_g * 9
+        else:
+            kcal_target = 0
+
         found = []
+        kcal_covered = 0
         for food, data in db.items():
-            if macro in data:
-                macro_per_100g = data[macro]
-                qty = calculate_qty_for_macro_kcal(kcal_macro, macro_per_100g, macro)
-                if qty <= 0:
-                    continue
+            if macro in data and kcal_covered < kcal_target:
+                kcal_per_100g = data[macro] * 4 if macro != "fat" else data[macro] * 9
+                qty_g = (kcal_target - kcal_covered) / kcal_per_100g * 100
+
                 if "unit" in data:
-                    text = unit_portion(qty, data["unit"], food)
+                    # Calcola quantità in unità (arrotondato)
+                    text = unit_portion(qty_g, data["unit"], food)
                 else:
-                    g = round_5g(qty)
-                    if g >= 5:
-                        text = f"{g}g {food}"
-                    else:
-                        text = "Quantità insufficiente utilizzare altri alimenti"
+                    qty_g_rounded = round_5g(qty_g)
+                    if qty_g_rounded < 5:
+                        continue  # troppo poco, passa al prossimo
+                    text = f"{qty_g_rounded}g {food}"
+
                 found.append(text)
+                kcal_covered += (qty_g / 100) * kcal_per_100g
+
+                if len(found) >= 3:
+                    break
+        if kcal_covered < kcal_target:
+            found.append("Quota non completamente coperta con alimenti disponibili")
+
         suggestions[macro] = " | ".join(found)
     return suggestions
