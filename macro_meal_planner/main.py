@@ -4,6 +4,7 @@ from food_suggestions import suggest_foods
 from pdf_generator import generate_pdf
 
 def kcal_percent_to_grams(percentuali, tot_kcal):
+    """Calcola i grammi teorici per ogni macro sulla base delle percentuali kcal e delle kcal totali."""
     kcal_per_g = {'carbs': 4, 'protein': 4, 'fat': 9}
     grams = {}
     for macro, percent in percentuali.items():
@@ -48,20 +49,22 @@ if st.button("Genera piano pasti completo"):
         foods = suggest_foods(macros, nome)
         pasti[nome] = {"kcal": kcal, "macros": macros, "foods": foods}
 
-        grams_pasto = kcal_percent_to_grams(split_percent, kcal)
-        
+        # Calcolo dei grammi teorici per ogni pasto
+        grams_pasto_teorici = kcal_percent_to_grams(split_percent, kcal)
+
         st.subheader(f"{nome}: {int(kcal)} kcal ({int(perc*100)}%)")
-        st.write(f"Carboidrati: {macros['carbs']}g (Teorici: {grams_pasto['carbs']}g)")
-        st.write(f"Proteine: {macros['protein']}g (Teorici: {grams_pasto['protein']}g)")
-        st.write(f"Grassi: {macros['fat']}g (Teorici: {grams_pasto['fat']}g)")
+        st.write(f"**Carboidrati:** Calcolati = {macros['carbs']}g | Teorici = {grams_pasto_teorici['carbs']}g")
+        st.write(f"**Proteine:** Calcolati = {macros['protein']}g | Teorici = {grams_pasto_teorici['protein']}g")
+        st.write(f"**Grassi:** Calcolati = {macros['fat']}g | Teorici = {grams_pasto_teorici['fat']}g")
         
-        st.markdown("### Esempi alimenti")
+        st.markdown("### Esempi alimenti suggeriti:")
         for macro, items in foods.items():
             if macro == "fat" and items.strip() == "":
                 st.write(f"**Grassi**: Quota coperta da altri alimenti")
             else:
                 st.write(f"**{macro.capitalize()}**: {items}")
 
+    # Generazione PDF con piano pasti
     pdf_path = generate_pdf(pasti, kcal_total, split, distrib)
     with open(pdf_path, "rb") as f:
         st.download_button("📄 Scarica piano pasti in PDF", f, file_name="piano_pasti.pdf")
