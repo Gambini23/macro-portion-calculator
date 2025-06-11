@@ -19,10 +19,7 @@ def suggest_foods(kcal_pasto: float, pasto: str, split: dict) -> dict:
                     # Numero di unità, arrotondato con approssimazione 20%
                     units = grammi / unit_weight
                     units_appross = int((units * 1.2) + 0.99)  # arrotonda sempre verso l'alto
-                    if units_appross == 1:
-                        portion = f"{units_appross} {food[:-1]}"  # es. "1 Uovo" senza plurale
-                    else:
-                        portion = f"{units_appross} {food}"
+                    portion = f"{units_appross} {food}"
                 else:
                     # Arrotonda grammi al multiplo di 5 più vicino
                     grammi_rounded = 5 * round(grammi / 5)
