@@ -20,7 +20,7 @@ with colC: perc_fat = st.slider("% kcal Grassi", 0, 100, 30)
 
 with st.columns(1)[0]:
     st.markdown(
-        "**Grammatura corrispondente:**  \n"
+        "**Grammatura corrispondente (totale giornata):**  \n"
         f"Carboidrati: {round((kcal_total * (perc_carb / 100)) / 4, 1)}g  \n"
         f"Proteine: {round((kcal_total * (perc_pro / 100)) / 4, 1)}g  \n"
         f"Grassi: {round((kcal_total * (perc_fat / 100)) / 9, 1)}g"
@@ -39,17 +39,27 @@ if st.button("Genera piano pasti completo"):
 
     for nome, perc in distrib.items():
         kcal = kcal_total * perc
-
         foods = suggest_foods(kcal, nome, split)
         pasti[nome] = {"kcal": kcal, "foods": foods}
 
         st.subheader(f"{nome}: {int(kcal)} kcal ({int(perc*100)}%)")
+
+        # Mostra i grammi (non arrotondati a multipli di 5) per ogni macro
         for macro in ["protein", "carbs", "fat"]:
             kcal_macro = kcal * split[macro]
-            st.write(f"{macro.capitalize()} (kcal): {int(kcal_macro)}")
+            if macro == "fat":
+                grams = kcal_macro / 9
+            else:
+                grams = kcal_macro / 4
+            grams = round(grams, 1)
+            st.write(f"{macro.capitalize()}: {grams}g")
+
         st.markdown("### Esempi alimenti per macro")
         for macro, items in foods.items():
-            st.write(f"{macro.capitalize()}: {items}")
+            if items.strip() == "":
+                st.write(f"**{macro.capitalize()}**: Nessun alimento suggerito")
+            else:
+                st.write(f"**{macro.capitalize()}**: {items}")
 
     pdf_path = generate_pdf(pasti, kcal_total, split, distrib)
     with open(pdf_path, "rb") as f:
