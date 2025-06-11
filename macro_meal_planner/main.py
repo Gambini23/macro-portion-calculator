@@ -54,8 +54,7 @@ if st.button("Genera piano pasti completo"):
                 grams = kcal_macro / 9
             else:
                 grams = kcal_macro / 4
-            grams_rounded = 5 * round(grams / 5)
-            st.write(f"{macro.capitalize()}: {grams_rounded}g")
+            st.write(f"{macro.capitalize()}: {grams}g")
 
         st.markdown("### Esempi alimenti per macro")
         for macro, items in foods.items():
