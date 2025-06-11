@@ -50,4 +50,4 @@ if st.button("Genera piano pasti completo"):
 
     pdf_path = generate_pdf(pasti, kcal_total, split, distrib)
     with open(pdf_path, "rb") as f:
-        st.download_button("📄 Scarica piano pasti in PDF", f, file_name="piano_pasti.pdf"
+        st.download_button("📄 Scarica piano pasti in PDF", f, file_name="piano_pasti.pdf")
