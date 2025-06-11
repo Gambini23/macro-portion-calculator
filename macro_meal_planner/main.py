@@ -3,6 +3,13 @@ from macros import compute_macros
 from food_suggestions import suggest_foods
 from pdf_generator import generate_pdf
 
+def kcal_percent_to_grams(percentuali, tot_kcal):
+    kcal_per_g = {'carbs': 4, 'protein': 4, 'fat': 9}
+    grams = {}
+    for macro, percent in percentuali.items():
+        grams[macro] = round((percent / 100) * tot_kcal / kcal_per_g[macro], 1)
+    return grams
+
 st.title("Meal Macro Planner")
 
 kcal_total = st.number_input("Kcal giornaliere", min_value=1000, max_value=4000, value=1600)
@@ -18,13 +25,17 @@ colA, colB, colC = st.columns(3)
 with colA: perc_pro = st.slider("% kcal Proteine", 0, 100, 20)
 with colB: perc_carb = st.slider("% kcal Carboidrati", 0, 100, 50)
 with colC: perc_fat = st.slider("% kcal Grassi", 0, 100, 30)
+
+split_percent = {'carbs': perc_carb, 'protein': perc_pro, 'fat': perc_fat}
+grams_total = kcal_percent_to_grams(split_percent, kcal_total)
+
 with st.columns(1)[0]:
     st.markdown(
-    "**Grammatura corrispondente:**  \n"
-    f"Carboidrati: {round((kcal_total * (perc_carb / 100)) / 4, 1)}g  \n"
-    f"Proteine: {round((kcal_total * (perc_pro / 100)) / 4, 1)}g  \n"
-    f"Grassi: {round((kcal_total * (perc_fat / 100)) / 9, 1)}g"
-)
+        "**Grammatura corrispondente ai macronutrienti (su tutto il giorno):**  \n"
+        f"Carboidrati: {grams_total['carbs']}g  \n"
+        f"Proteine: {grams_total['protein']}g  \n"
+        f"Grassi: {grams_total['fat']}g"
+    )
 
 if st.button("Genera piano pasti completo"):
     split = {"carbs": perc_carb/100, "protein": perc_pro/100, "fat": perc_fat/100}
@@ -37,10 +48,13 @@ if st.button("Genera piano pasti completo"):
         foods = suggest_foods(macros, nome)
         pasti[nome] = {"kcal": kcal, "macros": macros, "foods": foods}
 
+        grams_pasto = kcal_percent_to_grams(split_percent, kcal)
+        
         st.subheader(f"{nome}: {int(kcal)} kcal ({int(perc*100)}%)")
-        st.write(f"Carboidrati: {macros['carbs']}g")
-        st.write(f"Proteine: {macros['protein']}g")
-        st.write(f"Grassi: {macros['fat']}g")
+        st.write(f"Carboidrati: {macros['carbs']}g (Teorici: {grams_pasto['carbs']}g)")
+        st.write(f"Proteine: {macros['protein']}g (Teorici: {grams_pasto['protein']}g)")
+        st.write(f"Grassi: {macros['fat']}g (Teorici: {grams_pasto['fat']}g)")
+        
         st.markdown("### Esempi alimenti")
         for macro, items in foods.items():
             if macro == "fat" and items.strip() == "":
@@ -51,3 +65,4 @@ if st.button("Genera piano pasti completo"):
     pdf_path = generate_pdf(pasti, kcal_total, split, distrib)
     with open(pdf_path, "rb") as f:
         st.download_button("📄 Scarica piano pasti in PDF", f, file_name="piano_pasti.pdf")
+
