@@ -42,10 +42,9 @@ raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vig
         pdf.set_font("DejaVu", 'B', 13)
         pdf.cell(0, 10, f"{pasto.upper()} ({int(distrib[pasto]*100)}% = {int(data['kcal'])} kcal)", ln=True)
         pdf.set_font("DejaVu", '', 11)
-
+        
         fat_val = data['macros']['fat']
         fat_text = f"{fat_val}g" if fat_val >= 5 else "quota coperta da altri alimenti"
-
         pdf.cell(0, 10, f"Carboidrati: {data['macros']['carbs']}g | Proteine: {data['macros']['protein']}g | Grassi: {fat_text}", ln=True)
         pdf.ln(2)
 
@@ -54,12 +53,15 @@ raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vig
         pdf.set_font("DejaVu", '', 11)
 
         for macro, items in data['foods'].items():
-            if macro == "fat" and items.strip() == "":
-                pdf.multi_cell(0, 8, "Grassi: quota coperta da altri alimenti")
+            if macro == "fat":
+                if fat_val < 5:
+                    pdf.multi_cell(0, 8, "Grassi: quota coperta da altri alimenti")
+                elif items.strip() != "":
+                    pdf.multi_cell(0, 8, f"{macro.capitalize()}: {items}")
             else:
                 pdf.multi_cell(0, 8, f"{macro.capitalize()}: {items}")
-
-        pdf.ln(4)
+        
+        pdf.ln(3)
 
     # Disclaimer
     pdf.add_page()
@@ -72,4 +74,3 @@ raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vig
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
     pdf.output(tmp.name)
     return tmp.name
-
