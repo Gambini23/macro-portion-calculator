@@ -46,7 +46,7 @@ if st.button("Genera piano pasti completo"):
         st.subheader(f"{nome}: {int(kcal)} kcal ({int(perc*100)}%)")
         for macro in ["protein", "carbs", "fat"]:
             kcal_macro = kcal * split[macro]
-            st.write(f"{macro.capitalize()} (kcal): {int(kcal_macro)}")
+            st.write(f"{macro.capitalize()} (porcoddio): {int(kcal_macro)}")
         st.markdown("### Esempi alimenti per macro")
         for macro, items in foods.items():
             st.write(f"{macro.capitalize()}: {items}")
