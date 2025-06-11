@@ -1,65 +1,37 @@
 from typing import Dict
-from food_data import FOODS_COLAZIONE, FOODS_PASTI
+from food_data import FOODS_COLAZIONE, FOODS_PASTI, KCAL_PER_GRAM
 
-# kcal per grammo di ogni macro
-KCAL_PER_GRAM = {
-    "carbs": 4,
-    "protein": 4,
-    "fat": 9,
-}
+def unit_portion(qty: float, unit_weight: float, food_name: str) -> str:
+    unit_qty = qty / unit_weight
+    rounded = round(unit_qty)
+    if abs(unit_qty - rounded) <= 0.2:
+        unit_qty = rounded
+    return f"{int(unit_qty)} {food_name}" if unit_qty >= 1 else f"{round(qty)}g {food_name}"
 
 def suggest_foods(kcal_pasto: float, pasto: str) -> Dict[str, str]:
     """
-    Suggerisce alimenti per raggiungere le kcal del pasto.
-    Calcola la grammatura in base alle kcal di ogni alimento.
-    Restituisce un dict con macro come chiave e stringa di alimenti e grammature come valore.
+    Suggerisce alimenti per il pasto calcolando la grammatura necessaria
+    per raggiungere le kcal del pasto, ignorando la suddivisione in macro.
     """
+    # Se il pasto è colazione, spuntino o merenda usa FOODS_COLAZIONE, altrimenti FOODS_PASTI
     db = FOODS_COLAZIONE if pasto in ["Colazione", "Spuntino", "Merenda"] else FOODS_PASTI
 
-    suggestions = {"carbs": [], "protein": [], "fat": []}
-
-    # Ciclo su ogni alimento nel DB
+    found = []
     for food, data in db.items():
-        # Ogni alimento ha macro e calorie per 100g, oppure calcoliamo con macro * kcal/g
-        calories_100g = data.get("calories")
-        if calories_100g is None:
-            # Se non c'è campo calories, calcoliamo
-            calories_100g = 0
-            for macro in ["carbs", "protein", "fat"]:
-                if macro in data:
-                    calories_100g += data[macro] * KCAL_PER_GRAM[macro]
+        kcal_100g = data.get("kcal")
+        if not kcal_100g:
+            # Se manca il valore kcal, salta
+            continue
 
-        # Per ogni macro presente nell'alimento
-        for macro in ["carbs", "protein", "fat"]:
-            if macro in data:
-                # Quante kcal di questo macro per 100g?
-                kcal_macro_100g = data[macro] * KCAL_PER_GRAM[macro]
-                # Quante kcal totali arrivano da questo alimento? (usiamo calories_100g)
-                # Calcolo la frazione kcal_macro rispetto al totale kcal 100g
-                if calories_100g == 0:
-                    # Evito divisione per zero
-                    continue
-                frac_macro = kcal_macro_100g / calories_100g
+        qty = (kcal_pasto / kcal_100g) * 100  # grammi necessari per raggiungere kcal_pasto
 
-                # Obiettivo kcal del macro nel pasto
-                kcal_macro_target = kcal_pasto * frac_macro
-
-                # Grammatura per raggiungere kcal macro target
-                qty_g = kcal_macro_target / (data[macro] * KCAL_PER_GRAM[macro]) * 100
-
-                # Arrotondo a multipli di 5g per chiarezza (funzione semplice)
-                qty_g_rounded = max(5, round(qty_g / 5) * 5)
-
-                # Solo se quantità significativa (>= 5g) la mostro
-                if qty_g_rounded >= 5:
-                    suggestions[macro].append(f"{qty_g_rounded}g {food}")
-
-    # Convertiamo le liste in stringhe separate da pipe
-    result = {}
-    for macro in suggestions:
-        if suggestions[macro]:
-            result[macro] = " | ".join(suggestions[macro])
+        # Se c'è il campo "unit" usiamo unit_portion, altrimenti grammi tondi a 5
+        if "unit" in data:
+            text = unit_portion(qty, data["unit"], food)
         else:
-            result[macro] = ""
+            # Arrotondiamo a multipli di 5 grammi
+            qty_5g = max(5, round(qty / 5) * 5)
+            text = f"{qty_5g}g {food}"
+        found.append(text)
 
-    return result
+    return {"foods": " | ".join(found)}
