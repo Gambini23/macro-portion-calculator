@@ -1,3 +1,4 @@
+from typing import Dict
 def suggest_foods(kcal_pasto: float, pasto: str) -> Dict[str, str]:
     """
     Per ogni macro, lista alimenti con grammatura che porta alla quota kcal_pasto totale,
