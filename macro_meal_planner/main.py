@@ -39,12 +39,17 @@ if st.button("Genera piano pasti completo"):
 
     for nome, perc in distrib.items():
         kcal = kcal_total * perc
+        macros = {
+            "protein": round((kcal * split["protein"]) / 4, 1),
+            "carbs": round((kcal * split["carbs"]) / 4, 1),
+            "fat": round((kcal * split["fat"]) / 9, 1),
+        }
         foods = suggest_foods(kcal, nome, split)
-        pasti[nome] = {"kcal": kcal, "foods": foods}
+
+        pasti[nome] = {"kcal": kcal, "macros": macros, "foods": foods}
 
         st.subheader(f"{nome}: {int(kcal)} kcal ({int(perc*100)}%)")
 
-        # Mostra i grammi (non arrotondati a multipli di 5) per ogni macro
         for macro in ["protein", "carbs", "fat"]:
             kcal_macro = kcal * split[macro]
             if macro == "fat":
@@ -64,3 +69,4 @@ if st.button("Genera piano pasti completo"):
     pdf_path = generate_pdf(pasti, kcal_total, split, distrib)
     with open(pdf_path, "rb") as f:
         st.download_button("📄 Scarica piano pasti in PDF", f, file_name="piano_pasti.pdf")
+
