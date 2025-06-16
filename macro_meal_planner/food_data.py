@@ -1,8 +1,8 @@
 FOODS_COLAZIONE = {
     "Cornflakes": {"carbs": 84, "kcal": 370},
-    "Cornflakes s/g": {"carbs": 85, "kcal": 370},
-    "Farina d'avena s/g": {"carbs": 60, "kcal": 375},
-    "Fiocchi d'avena s/g": {"carbs": 13, "kcal": 367},
+    "Cornflakes s.g.": {"carbs": 85, "kcal": 370},
+    "Farina d'avena s.g.": {"carbs": 60, "kcal": 375},
+    "Fiocchi d'avena s.g.": {"carbs": 13, "kcal": 367},
     "Pane integrale": {"carbs": 40, "kcal": 230},
     "Fiocchi d'avena": {"carbs": 60, "kcal": 370},
     "Farina d'avena": {"carbs": 66, "kcal": 375},
