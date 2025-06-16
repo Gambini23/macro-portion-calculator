@@ -30,7 +30,7 @@ FOODS_PASTI = {
     "Pasta di mais": {"carbs": 64, "kcal": 362},
     "Quinoa": {"carbs": 70, "kcal": 368},
     "Piadina grano saraceno": {"carbs": 50, "kcal": 280},
-    "Gnocchi di patate": {"carbs": 28, "kcal": 130},
+    "Gnocchi di patate s.g.": {"carbs": 28, "kcal": 130},
     "Riso": {"carbs": 78, "kcal": 360},
     "Cous cous": {"carbs": 77, "kcal": 376},
     "Patate crude": {"carbs": 17, "kcal": 80},
