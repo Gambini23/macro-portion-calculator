@@ -1,5 +1,8 @@
 FOODS_COLAZIONE = {
     "Cornflakes": {"carbs": 84, "kcal": 370},
+    "Cornflakes s/g": {"carbs": 85, "kcal": 370},
+    "Farina d'avena s/g": {"carbs": 60, "kcal": 375},
+    "Fiocchi d'avena s/g": {"carbs": 13, "kcal": 367},
     "Pane integrale": {"carbs": 40, "kcal": 230},
     "Fiocchi d'avena": {"carbs": 60, "kcal": 370},
     "Farina d'avena": {"carbs": 66, "kcal": 375},
@@ -24,6 +27,10 @@ FOODS_COLAZIONE = {
 
 FOODS_PASTI = {
     "Pasta integrale": {"carbs": 70, "kcal": 350},
+    "Pasta di mais": {"carbs": 64, "kcal": 362},
+    "Quinoa": {"carbs": 70, "kcal": 368},
+    "Piadina grano saraceno": {"carbs": 50, "kcal": 280},
+    "Gnocchi di patate": {"carbs": 28, "kcal": 130},
     "Riso": {"carbs": 78, "kcal": 360},
     "Cous cous": {"carbs": 77, "kcal": 376},
     "Patate crude": {"carbs": 17, "kcal": 80},
