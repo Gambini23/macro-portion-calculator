@@ -26,6 +26,25 @@ with st.columns(1)[0]:
         f"Grassi: {round((kcal_total * (perc_fat / 100)) / 9, 1)}g"
     )
 
+# 💡 Selezione alimenti opzionali da parte dell'utente
+st.markdown("### Seleziona gli alimenti da includere (facoltativo)")
+
+default_foods = {
+    "protein": ["Yogurt greco", "Yogurt magro", "Uova", "Albume", "Bresaola", "Prosciutto cotto",
+                "Prosciutto crudo", "Ricotta light", "Proteine in polvere"],
+    "carbs": ["Cornflakes", "Pane integrale", "Fiocchi d'avena", "Farina d'avena", "Frutta",
+              "Gallette di riso", "Weetabix"],
+    "fat": ["Burro di arachidi", "Mandorle", "Noci", "Avocado", "Cioccolato fondente"]
+}
+
+selected_foods = {}
+for macro in ["protein", "carbs", "fat"]:
+    selected_foods[macro] = st.multiselect(
+        f"Alimenti per {macro.capitalize()}",
+        options=default_foods[macro],
+        default=default_foods[macro]  # puoi usare [] se vuoi che sia vuoto all’inizio
+    )
+
 if st.button("Genera piano pasti completo"):
     split = {"carbs": perc_carb / 100, "protein": perc_pro / 100, "fat": perc_fat / 100}
     distrib = {
@@ -44,18 +63,15 @@ if st.button("Genera piano pasti completo"):
             "carbs": round((kcal * split["carbs"]) / 4, 1),
             "fat": round((kcal * split["fat"]) / 9, 1),
         }
-        foods = suggest_foods(kcal, nome, split)
+        # 🔧 Passiamo anche la selezione dell’utente
+        foods = suggest_foods(kcal, nome, split, selected_foods)
 
         pasti[nome] = {"kcal": kcal, "macros": macros, "foods": foods}
 
         st.subheader(f"{nome}: {int(kcal)} kcal ({int(perc*100)}%)")
-
         for macro in ["protein", "carbs", "fat"]:
             kcal_macro = kcal * split[macro]
-            if macro == "fat":
-                grams = kcal_macro / 9
-            else:
-                grams = kcal_macro / 4
+            grams = kcal_macro / (9 if macro == "fat" else 4)
             grams = round(grams, 1)
             st.write(f"{macro.capitalize()}: {grams}g")
 
@@ -69,4 +85,3 @@ if st.button("Genera piano pasti completo"):
     pdf_path = generate_pdf(pasti, kcal_total, split, distrib)
     with open(pdf_path, "rb") as f:
         st.download_button("📄 Scarica piano pasti in PDF", f, file_name="piano_pasti.pdf")
-
