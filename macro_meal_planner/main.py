@@ -18,13 +18,17 @@ with colA: perc_pro = st.slider("% kcal Proteine", 0, 100, 20)
 with colB: perc_carb = st.slider("% kcal Carboidrati", 0, 100, 50)
 with colC: perc_fat = st.slider("% kcal Grassi", 0, 100, 30)
 
-with st.columns(1)[0]:
-    st.markdown(
-        "**Grammatura corrispondente (totale giornata):**  \n"
-        f"Carboidrati: {round((kcal_total * (perc_carb / 100)) / 4, 1)}g  \n"
-        f"Proteine: {round((kcal_total * (perc_pro / 100)) / 4, 1)}g  \n"
-        f"Grassi: {round((kcal_total * (perc_fat / 100)) / 9, 1)}g"
-    )
+st.markdown(
+    f"**Grammatura corrispondente (totale giornata):**  ")
+st.markdown(
+    f"Carboidrati: {round((kcal_total * (perc_carb / 100)) / 4, 1)}g  ")
+st.markdown(
+    f"Proteine: {round((kcal_total * (perc_pro / 100)) / 4, 1)}g  ")
+st.markdown(
+    f"Grassi: {round((kcal_total * (perc_fat / 100)) / 9, 1)}g")
+
+if 'raw_pasti' not in st.session_state:
+    st.session_state.raw_pasti = None
 
 if st.button("Genera piano pasti completo"):
     split = {"carbs": perc_carb / 100, "protein": perc_pro / 100, "fat": perc_fat / 100}
@@ -48,24 +52,41 @@ if st.button("Genera piano pasti completo"):
 
         pasti[nome] = {"kcal": kcal, "macros": macros, "foods": foods}
 
-        st.subheader(f"{nome}: {int(kcal)} kcal ({int(perc*100)}%)")
+    st.session_state.raw_pasti = pasti
 
-        for macro in ["protein", "carbs", "fat"]:
-            kcal_macro = kcal * split[macro]
-            if macro == "fat":
-                grams = kcal_macro / 9
-            else:
-                grams = kcal_macro / 4
-            grams = round(grams, 1)
-            st.write(f"{macro.capitalize()}: {grams}g")
+if st.session_state.raw_pasti:
+    modified_pasti = {}
 
-        st.markdown("### Esempi alimenti per macro")
-        for macro, items in foods.items():
-            if items.strip() == "":
-                st.write(f"**{macro.capitalize()}**: Nessun alimento suggerito")
-            else:
-                st.write(f"**{macro.capitalize()}**: {items}")
+    for pasto, data in st.session_state.raw_pasti.items():
+        st.subheader(f"{pasto}: {int(data['kcal'])} kcal")
+        st.write(f"Carboidrati: {data['macros']['carbs']}g | Proteine: {data['macros']['protein']}g | Grassi: {data['macros']['fat']}g")
 
-    pdf_path = generate_pdf(pasti, kcal_total, split, distrib)
-    with open(pdf_path, "rb") as f:
-        st.download_button("📄 Scarica piano pasti in PDF", f, file_name="piano_pasti.pdf")
+        new_foods = {}
+        for macro, food_list in data['foods'].items():
+            items = [item.strip() for item in food_list.split('|') if item.strip()]
+            kept_items = []
+            st.markdown(f"**{macro.capitalize()}**")
+            for item in items:
+                if not st.checkbox(f"❌ {item}", key=f"{pasto}_{macro}_{item}"):
+                    kept_items.append(item)
+            new_foods[macro] = " | ".join(kept_items)
+
+        modified_pasti[pasto] = {
+            "kcal": data['kcal'],
+            "macros": data['macros'],
+            "foods": new_foods
+        }
+
+    if st.button("📄 Applica modifiche e scarica PDF"):
+        split = {"carbs": perc_carb / 100, "protein": perc_pro / 100, "fat": perc_fat / 100}
+        distrib = {
+            "Colazione": perc_col / 100,
+            "Spuntino": perc_spt / 100,
+            "Pranzo": perc_prz / 100,
+            "Merenda": perc_mer / 100,
+            "Cena": perc_cen / 100,
+        }
+        pdf_path = generate_pdf(modified_pasti, kcal_total, split, distrib)
+        with open(pdf_path, "rb") as f:
+            st.download_button("📄 Scarica piano pasti in PDF", f, file_name="piano_pasti.pdf")
+
