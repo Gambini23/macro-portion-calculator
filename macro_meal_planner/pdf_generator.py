@@ -95,20 +95,20 @@ Buone abitudini:
         
         pdf.ln(3)
                 # Aggiunta linee guida
-        pdf.add_page()
-        pdf.set_font("DejaVu", 'B', 14)
-        pdf.cell(0, 10, "LINEE GUIDA GENERALI", ln=True)
-        pdf.ln(2)
-        pdf.set_font("DejaVu", '', 10)
-        pdf.multi_cell(0, 6, linee_guida.strip())
+    pdf.add_page()
+    pdf.set_font("DejaVu", 'B', 14)
+    pdf.cell(0, 10, "LINEE GUIDA GENERALI", ln=True)
+    pdf.ln(2)
+    pdf.set_font("DejaVu", '', 10)
+    pdf.multi_cell(0, 6, linee_guida.strip())
         
         # Disclaimer 
-        pdf.add_page()
-        pdf.set_font("DejaVu", 'B', 14)
-        pdf.cell(0, 10, "DISCLAIMER", ln=True)
-        pdf.ln(2)
-        pdf.set_font("DejaVu", '', 11)
-        pdf.multi_cell(0, 5, disclaimer.strip())
+    pdf.add_page()
+    pdf.set_font("DejaVu", 'B', 14)
+    pdf.cell(0, 10, "DISCLAIMER", ln=True)
+    pdf.ln(2)
+    pdf.set_font("DejaVu", '', 11)
+    pdf.multi_cell(0, 5, disclaimer.strip())
 
 
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
