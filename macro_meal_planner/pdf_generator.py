@@ -23,6 +23,38 @@ Raffaele.
 L’autore declina ogni responsabilità derivante da un uso improprio o non conforme delle
 informazioni contenute nel documento. Per una valutazione alimentare personalizzata, si
 raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vigente."""
+    linee_guida = """
+LINEE GUIDA GENERALI DA SEGUIRE A TAVOLA
+
+Metodi di cottura consigliati:
+- Preferisci vapore, forno, friggitrice ad aria, griglia, padella antiaderente, cotture a bassa temperatura o sottovuoto.
+
+Acqua e idratazione:
+- Almeno 1 litro ogni 1000 kcal assunte, più acqua in caso di allenamenti o caldo.
+- No a bevande zuccherate o gassate.
+
+Olio extravergine d'oliva:
+- Solo a crudo, evita la cottura per non alterare i grassi.
+
+Sale e sodio:
+- Max 5 g al giorno. Usa spezie, erbe, limone o aceto come alternativa.
+
+Spezie ed erbe aromatiche:
+- Libero utilizzo. Ricche di benefici, nessuna caloria.
+
+Verdure:
+- Sempre a pranzo e cena. Quantità: doppia rispetto alle proteine.
+- Varia colori e tipi. Alterna crudo/cotto.
+
+Alimenti da limitare o evitare:
+- Cibi ultra-processati, zuccheri aggiunti, alcolici, grassi trans.
+
+Buone abitudini:
+- Mangia lentamente, non saltare pasti, pesa le porzioni.
+- Bilancia ogni pasto con fonti di proteine, carboidrati e grassi.
+- Prepara con cura, evita improvvisazioni.
+"""
+    
 
     pdf = FPDF()
     pdf.add_font('DejaVu', 'B', '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', uni=True)
@@ -70,6 +102,14 @@ raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vig
     pdf.ln(2)
     pdf.set_font("DejaVu", '', 11)
     pdf.multi_cell(0, 5, disclaimer.strip())
+
+    # Aggiunta linee guida
+    pdf.add_page()
+    pdf.set_font("DejaVu", 'B', 14)
+    pdf.cell(0, 10, "LINEE GUIDA GENERALI", ln=True)
+    pdf.ln(2)
+    pdf.set_font("DejaVu", '', 10)
+    pdf.multi_cell(0, 6, linee_guida.strip())
 
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
     pdf.output(tmp.name)
