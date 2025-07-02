@@ -1,4 +1,5 @@
 FOODS_COLAZIONE = {
+    "Kefir magro": {"protein": 3.3, "kcal": 43},
     "Cornflakes": {"carbs": 84, "kcal": 370},
     "Cornflakes s.g.": {"carbs": 85, "kcal": 370},
     "Farina d'avena s.g.": {"carbs": 60, "kcal": 375},
@@ -26,6 +27,7 @@ FOODS_COLAZIONE = {
 }
 
 FOODS_PASTI = {
+    "Farro": {"carbs": 67, "kcal": 335},
     "Pasta integrale": {"carbs": 70, "kcal": 350},
     "Pasta di mais": {"carbs": 64, "kcal": 362},
     "Quinoa": {"carbs": 70, "kcal": 368},
