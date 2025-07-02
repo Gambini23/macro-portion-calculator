@@ -2,7 +2,7 @@ from fpdf import FPDF
 import tempfile
 
 def generate_pdf(pasti, kcal_total, split, distrib):
-    disclaimer = """ Giacomo
+    disclaimer = """ 
 Il presente consiglio alimentare ha esclusivamente finalità informative ed esemplificative.
 Le combinazioni alimentari, le frequenze settimanali e le porzioni suggerite sono pensate
 per offrire un orientamento generale sulla distribuzione dei macronutrienti e non
