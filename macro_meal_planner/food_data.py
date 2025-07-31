@@ -1,4 +1,6 @@
 FOODS_COLAZIONE = {
+    "Vitargo": {"carbs": 93, "kcal": 372},
+    "Parmigiano Reggiano": {"protein": 33, "kcal": 392},
     "Kefir magro": {"protein": 3.3, "kcal": 43},
     "Cornflakes": {"carbs": 84, "kcal": 370},
     "Cornflakes s.g.": {"carbs": 85, "kcal": 370},
