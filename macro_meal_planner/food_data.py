@@ -28,7 +28,17 @@ FOODS_COLAZIONE = {
     "Cioccolato fondente": {"fat": 35, "kcal": 550},
 }
 
-FOODS_PASTI = {
+FOODS_PASTI = {"Edamame": {"carbs": 10, "kcal": 121},
+    "Tonno in scatola al naturale(sgocciolato)": {"protein": 23, "kcal": 103},
+     "Tonno in scatola in olio d'oliva(sgocciolato)": {"protein": 25, "kcal": 198},
+    "Tonno in scatola(sgocciolato)": {"protein": 25, "kcal": 198},
+    "Coscia di pollo(spellata)": {"protein": 20, "kcal": 167},
+     "Coscia di pollo(spellata)": {"protein": 20, "kcal": 167},
+    "Fagioli secchi": {"carbs": 60, "kcal": 333},
+    "ceci secchi": {"carbs": 53, "kcal": 353},
+    "Lenticchie secche": {"carbs": 61, "kcal": 364},
+     "Seitan": {"protein": 67, "kcal": 335},
+     "Tempeh": {"protein": 25, "kcal": 143},
     "Farro": {"carbs": 67, "kcal": 335},
     "Pasta integrale": {"carbs": 70, "kcal": 350},
     "Pasta di mais": {"carbs": 64, "kcal": 362},
