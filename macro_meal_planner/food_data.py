@@ -32,7 +32,6 @@ FOODS_COLAZIONE = {
 FOODS_PASTI = {"Edamame": {"carbs": 10, "kcal": 121},
     "Tonno in scatola al naturale(sgocciolato)": {"protein": 23, "kcal": 103},
      "Tonno in scatola in olio d'oliva(sgocciolato)": {"protein": 25, "kcal": 198},
-    "Tonno in scatola(sgocciolato)": {"protein": 25, "kcal": 198},
     "Coscia di pollo(spellata)": {"protein": 20, "kcal": 167},
      "Coscia di pollo(spellata)": {"protein": 20, "kcal": 167},
     "Fagioli secchi": {"carbs": 60, "kcal": 333},
