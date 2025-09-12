@@ -2,7 +2,7 @@ from fpdf import FPDF
 import tempfile
 
 def generate_pdf(pasti, kcal_total, split, distrib):
-    disclaimer = """ 
+    disclaimer = """
 Il presente consiglio alimentare ha esclusivamente finalità informative ed esemplificative.
 Le combinazioni alimentari, le frequenze settimanali e le porzioni suggerite sono pensate
 per offrire un orientamento generale sulla distribuzione dei macronutrienti e non
@@ -54,11 +54,15 @@ Buone abitudini:
 - Bilancia ogni pasto con fonti di proteine, carboidrati e grassi.
 - Prepara con cura, evita improvvisazioni.
 """
-    
 
     pdf = FPDF()
-    pdf.add_font('DejaVu', 'B', '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', uni=True)
+    pdf.set_auto_page_break(auto=True, margin=15)
+
+    # ATTENZIONE: i percorsi dei font devono esistere sul server
+    # Se il percorso differisce (es. Windows), aggiornalo di conseguenza.
     pdf.add_font('DejaVu', '', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', uni=True)
+    pdf.add_font('DejaVu', 'B', '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', uni=True)
+
     pdf.add_page()
 
     # Intestazione
@@ -75,23 +79,28 @@ Buone abitudini:
         pdf.cell(0, 10, f"{pasto.upper()} ({int(distrib[pasto]*100)}% = {int(data['kcal'])} kcal)", ln=True)
         pdf.set_font("DejaVu", '', 11)
         
+        # Conserviamo il controllo sui grassi come prima
         fat_val = data['macros']['fat']
         fat_text = f"{fat_val}g" if fat_val >= 5 else "quota coperta da altri alimenti"
-       # Stampa con intestazioni in grassetto
+
+        # --- Stampa inline con etichette in grassetto e valori normali ---
+        # Usare write() evita problemi di larghezza quando si concatenano più cell
         pdf.set_font("DejaVu", 'B', 11)
-        pdf.cell(0, 10, "Carboidrati: ", ln=0)
+        pdf.write(6, "Carboidrati: ")
         pdf.set_font("DejaVu", '', 11)
-        pdf.cell(0, 10, f"{data['macros']['carbs']}g   ", ln=0)
-        
+        pdf.write(6, f"{data['macros']['carbs']}g   ")
+
         pdf.set_font("DejaVu", 'B', 11)
-        pdf.cell(0, 10, "Proteine: ", ln=0)
+        pdf.write(6, "Proteine: ")
         pdf.set_font("DejaVu", '', 11)
-        pdf.cell(0, 10, f"{data['macros']['protein']}g   ", ln=0)
-        
+        pdf.write(6, f"{data['macros']['protein']}g   ")
+
         pdf.set_font("DejaVu", 'B', 11)
-        pdf.cell(0, 10, "Grassi: ", ln=0)
+        pdf.write(6, "Grassi: ")
         pdf.set_font("DejaVu", '', 11)
-        pdf.cell(0, 10, fat_text, ln=1)
+        pdf.write(6, fat_text)
+        pdf.ln(8)
+        # --------------------------------------------------------------------
 
         pdf.set_font("DejaVu", 'B', 12)
         pdf.cell(0, 10, "Esempi alimenti:", ln=True)
@@ -99,14 +108,19 @@ Buone abitudini:
 
         for macro, items in data['foods'].items():
             if macro == "fat":
+                # Se fat < 5 => stampiamo il messaggio, altrimenti la lista se non vuota
                 if fat_val < 5:
                     pdf.multi_cell(0, 8, "Grassi: quota coperta da altri alimenti")
                 elif items.strip() != "":
                     pdf.multi_cell(0, 8, f"{macro.capitalize()}: {items}")
             else:
-                pdf.multi_cell(0, 8, f"{macro.capitalize()}: {items}")
+                if items.strip() == "":
+                    pdf.multi_cell(0, 8, f"{macro.capitalize()}: Nessun alimento suggerito")
+                else:
+                    pdf.multi_cell(0, 8, f"{macro.capitalize()}: {items}")
         
         pdf.ln(3)
+
     # Aggiunta linee guida (PRIMA)
     pdf.add_page()
     pdf.set_font("DejaVu", 'B', 14)
@@ -122,7 +136,6 @@ Buone abitudini:
     pdf.ln(2)
     pdf.set_font("DejaVu", '', 11)
     pdf.multi_cell(0, 5, disclaimer.strip())    
-
 
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
     pdf.output(tmp.name)
