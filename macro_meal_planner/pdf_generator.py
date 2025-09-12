@@ -77,8 +77,21 @@ Buone abitudini:
         
         fat_val = data['macros']['fat']
         fat_text = f"{fat_val}g" if fat_val >= 5 else "quota coperta da altri alimenti"
-        pdf.cell(0, 10, f"Carboidrati: {data['macros']['carbs']}g | Proteine: {data['macros']['protein']}g | Grassi: {fat_text}", ln=True)
-        pdf.ln(2)
+       # Stampa con intestazioni in grassetto
+        pdf.set_font("DejaVu", 'B', 11)
+        pdf.cell(0, 10, "Carboidrati: ", ln=0)
+        pdf.set_font("DejaVu", '', 11)
+        pdf.cell(0, 10, f"{data['macros']['carbs']}g   ", ln=0)
+        
+        pdf.set_font("DejaVu", 'B', 11)
+        pdf.cell(0, 10, "Proteine: ", ln=0)
+        pdf.set_font("DejaVu", '', 11)
+        pdf.cell(0, 10, f"{data['macros']['protein']}g   ", ln=0)
+        
+        pdf.set_font("DejaVu", 'B', 11)
+        pdf.cell(0, 10, "Grassi: ", ln=0)
+        pdf.set_font("DejaVu", '', 11)
+        pdf.cell(0, 10, fat_text, ln=1)
 
         pdf.set_font("DejaVu", 'B', 12)
         pdf.cell(0, 10, "Esempi alimenti:", ln=True)
