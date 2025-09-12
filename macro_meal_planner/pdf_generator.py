@@ -103,3 +103,50 @@ Buone abitudini:
         # Sezione alimenti
         pdf.set_font("DejaVu", 'B', 12)
         pdf.cell(0, 10, "Esempi alimenti:", ln=True)
+        pdf.set_font("DejaVu", '', 11)
+
+        for macro, items in data['foods'].items():
+            if macro == "fat":
+                if fat_val < 5:
+                    pdf.set_font("DejaVu", 'B', 11)
+                    pdf.write(6, "Grassi: ")
+                    pdf.set_font("DejaVu", '', 11)
+                    pdf.multi_cell(0, 8, "quota coperta da altri alimenti")
+                elif items.strip() != "":
+                    pdf.set_font("DejaVu", 'B', 11)
+                    pdf.write(6, f"{macro.capitalize()}: ")
+                    pdf.set_font("DejaVu", '', 11)
+                    pdf.multi_cell(0, 8, items)
+            else:
+                if items.strip() == "":
+                    pdf.set_font("DejaVu", 'B', 11)
+                    pdf.write(6, f"{macro.capitalize()}: ")
+                    pdf.set_font("DejaVu", '', 11)
+                    pdf.multi_cell(0, 8, "Nessun alimento suggerito")
+                else:
+                    pdf.set_font("DejaVu", 'B', 11)
+                    pdf.write(6, f"{macro.capitalize()}: ")
+                    pdf.set_font("DejaVu", '', 11)
+                    pdf.multi_cell(0, 8, items)
+
+        pdf.ln(3)
+
+    # Aggiunta linee guida (PRIMA del disclaimer)
+    pdf.add_page()
+    pdf.set_font("DejaVu", 'B', 14)
+    pdf.cell(0, 10, "LINEE GUIDA GENERALI", ln=True)
+    pdf.ln(2)
+    pdf.set_font("DejaVu", '', 10)
+    pdf.multi_cell(0, 6, linee_guida.strip())
+
+    # Disclaimer (ULTIMO)
+    pdf.add_page()
+    pdf.set_font("DejaVu", 'B', 14)
+    pdf.cell(0, 10, "DISCLAIMER", ln=True)
+    pdf.ln(2)
+    pdf.set_font("DejaVu", '', 11)
+    pdf.multi_cell(0, 5, disclaimer.strip())
+
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+    pdf.output(tmp.name)
+    return tmp.name
