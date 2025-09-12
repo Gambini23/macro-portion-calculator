@@ -23,6 +23,7 @@ Raffaele.
 L’autore declina ogni responsabilità derivante da un uso improprio o non conforme delle
 informazioni contenute nel documento. Per una valutazione alimentare personalizzata, si
 raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vigente."""
+
     linee_guida = """
 LINEE GUIDA GENERALI DA SEGUIRE A TAVOLA
 
@@ -56,13 +57,8 @@ Buone abitudini:
 """
 
     pdf = FPDF()
-    pdf.set_auto_page_break(auto=True, margin=15)
-
-    # ATTENZIONE: i percorsi dei font devono esistere sul server
-    # Se il percorso differisce (es. Windows), aggiornalo di conseguenza.
-    pdf.add_font('DejaVu', '', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', uni=True)
     pdf.add_font('DejaVu', 'B', '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', uni=True)
-
+    pdf.add_font('DejaVu', '', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', uni=True)
     pdf.add_page()
 
     # Intestazione
@@ -70,7 +66,12 @@ Buone abitudini:
     pdf.cell(0, 10, f"PIANO PASTI - {int(kcal_total)} kcal giornaliere", ln=True)
     pdf.ln(4)
     pdf.set_font("DejaVu", '', 11)
-    pdf.cell(0, 10, f"Distribuzione macronutrienti: Carboidrati {int(split['carbs']*100)}% | Proteine {int(split['protein']*100)}% | Grassi {int(split['fat']*100)}%", ln=True)
+    pdf.cell(
+        0,
+        10,
+        f"Distribuzione macronutrienti: Carboidrati {int(split['carbs']*100)}% | Proteine {int(split['protein']*100)}% | Grassi {int(split['fat']*100)}%",
+        ln=True,
+    )
     pdf.ln(5)
 
     # Pasti
@@ -78,13 +79,11 @@ Buone abitudini:
         pdf.set_font("DejaVu", 'B', 13)
         pdf.cell(0, 10, f"{pasto.upper()} ({int(distrib[pasto]*100)}% = {int(data['kcal'])} kcal)", ln=True)
         pdf.set_font("DejaVu", '', 11)
-        
-        # Conserviamo il controllo sui grassi come prima
+
         fat_val = data['macros']['fat']
         fat_text = f"{fat_val}g" if fat_val >= 5 else "quota coperta da altri alimenti"
 
-        # --- Stampa inline con etichette in grassetto e valori normali ---
-        # Usare write() evita problemi di larghezza quando si concatenano più cell
+        # Macronutrienti (in linea, normale)
         pdf.set_font("DejaVu", 'B', 11)
         pdf.write(6, "Carboidrati: ")
         pdf.set_font("DejaVu", '', 11)
@@ -99,44 +98,8 @@ Buone abitudini:
         pdf.write(6, "Grassi: ")
         pdf.set_font("DejaVu", '', 11)
         pdf.write(6, fat_text)
-        pdf.ln(8)
-        # --------------------------------------------------------------------
+        pdf.ln(10)
 
+        # Sezione alimenti
         pdf.set_font("DejaVu", 'B', 12)
         pdf.cell(0, 10, "Esempi alimenti:", ln=True)
-        pdf.set_font("DejaVu", '', 11)
-
-        for macro, items in data['foods'].items():
-            if macro == "fat":
-                # Se fat < 5 => stampiamo il messaggio, altrimenti la lista se non vuota
-                if fat_val < 5:
-                    pdf.multi_cell(0, 8, "Grassi: quota coperta da altri alimenti")
-                elif items.strip() != "":
-                    pdf.multi_cell(0, 8, f"{macro.capitalize()}: {items}")
-            else:
-                if items.strip() == "":
-                    pdf.multi_cell(0, 8, f"{macro.capitalize()}: Nessun alimento suggerito")
-                else:
-                    pdf.multi_cell(0, 8, f"{macro.capitalize()}: {items}")
-        
-        pdf.ln(3)
-
-    # Aggiunta linee guida (PRIMA)
-    pdf.add_page()
-    pdf.set_font("DejaVu", 'B', 14)
-    pdf.cell(0, 10, "LINEE GUIDA GENERALI", ln=True)
-    pdf.ln(2)
-    pdf.set_font("DejaVu", '', 10)
-    pdf.multi_cell(0, 6, linee_guida.strip())
-    
-    # Disclaimer (ULTIMO)
-    pdf.add_page()
-    pdf.set_font("DejaVu", 'B', 14)
-    pdf.cell(0, 10, "DISCLAIMER", ln=True)
-    pdf.ln(2)
-    pdf.set_font("DejaVu", '', 11)
-    pdf.multi_cell(0, 5, disclaimer.strip())    
-
-    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
-    pdf.output(tmp.name)
-    return tmp.name
