@@ -1,4 +1,5 @@
 FOODS_COLAZIONE = {
+     "Yogurt soia": {"protein": 5, "kcal": 100},
     "Vitargo": {"carbs": 93, "kcal": 372},
     "Parmigiano Reggiano": {"protein": 33, "kcal": 392},
     "Kefir magro": {"protein": 3.3, "kcal": 43},
