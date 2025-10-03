@@ -76,6 +76,9 @@ Buone abitudini:
 
     # Pasti
     for pasto, data in pasti.items():
+        # Se il pasto è allo 0%, non lo stampo nel PDF
+        if distrib[pasto] == 0:
+            continue
         pdf.set_font("DejaVu", 'B', 13)
         pdf.cell(0, 10, f"{pasto.upper()} ({int(distrib[pasto]*100)}% = {int(data['kcal'])} kcal)", ln=True)
         pdf.set_font("DejaVu", '', 11)
