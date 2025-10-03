@@ -10,11 +10,14 @@ def calcola_bmi_bmr_tdee():
     peso = st.number_input("Peso (kg)", min_value=30.0, max_value=200.0, value=70.0)
     altezza = st.number_input("Altezza (cm)", min_value=120.0, max_value=220.0, value=170.0)
 
-    attivita = st.selectbox("Livello di attività fisica", {
+    # 🔹 FIX: selectbox leggibile → uso dict
+    opzioni_attivita = {
         "Leggero (poco movimento)": "leggero",
         "Moderato (attività 3-4 volte/sett)": "moderato",
         "Pesante (attività giornaliera)": "pesante"
-    })
+    }
+    scelta = st.selectbox("Livello di attività fisica", list(opzioni_attivita.keys()))
+    attivita = opzioni_attivita[scelta]
 
     # Calcolo BMI
     altezza_m = altezza / 100
@@ -34,25 +37,35 @@ def calcola_bmi_bmr_tdee():
     # Calcolo BMR
     if sesso == "Femmina":
         bmr = 655.095 + (9.5634 * peso) + (1.849 * altezza) - (4.6756 * eta)
-    else:
+    else:  # Maschio
         bmr = 66.473 + (13.7156 * peso) + (5.033 * altezza) - (6.775 * eta)
 
-    # Calcolo TDEE
-    if attivita == "leggero":
-        fattore = 1.42 if sesso == "Femmina" else 1.41
-    elif attivita == "moderato":
-        fattore = 1.56 if sesso == "Femmina" else 1.70
-    else:
-        fattore = 1.73 if sesso == "Femmina" else 2.01
+    # Calcolo TDEE con fattori diversi maschio/femmina
+    if sesso == "Femmina":
+        if attivita == "leggero":
+            fattore = 1.42
+        elif attivita == "moderato":
+            fattore = 1.56
+        elif attivita == "pesante":
+            fattore = 1.73
+    else:  # Maschio
+        if attivita == "leggero":
+            fattore = 1.41
+        elif attivita == "moderato":
+            fattore = 1.70
+        elif attivita == "pesante":
+            fattore = 2.01
 
     tdee = bmr * fattore
 
+    # Output
     st.subheader("Risultati")
     st.markdown(f"**BMI**: {bmi} ({categoria})")
     st.markdown(f"**BMR**: {int(bmr)} kcal")
     st.markdown(f"**TDEE** (fabbisogno): {int(tdee)} kcal")
 
     return int(tdee)
+
 
 
 st.title("Meal Macro Planner")
