@@ -1,4 +1,12 @@
 FOODS_COLAZIONE = {
+     "Olio di cocco": {"fat": 100, "kcal": 900},
+     "Feta": {"fat": 21, "kcal": 264},
+     "Farina di ceci": {"carbs": 58, "kcal": 364},
+     "Fiocchi di latte(magri)": {"protein": 10, "kcal": 80},
+     "Olive": {"fat": 15, "kcal": 145},
+     "Farina di riso": {"carbs": 80, "kcal": 360},
+     "Biscotto Petit(Marie)": {"carbs": 77, "kcal": 440},
+     "Fette biscottate integrali": {"carbs": 67, "kcal": 400},
      "Yogurt soia": {"protein": 5, "kcal": 100},
     "Vitargo": {"carbs": 93, "kcal": 372},
     "Parmigiano Reggiano": {"protein": 33, "kcal": 392},
@@ -29,7 +37,15 @@ FOODS_COLAZIONE = {
     "Cioccolato fondente": {"fat": 35, "kcal": 550},
 }
 
-FOODS_PASTI = {"Edamame": {"carbs": 10, "kcal": 121},
+FOODS_PASTI = {
+     "Olio di cocco": {"fat": 100, "kcal": 900},
+     "Fegato di vitello": {"protein": 20, "kcal": 134},
+     "Feta": {"fat": 21, "kcal": 264},
+      "Piselli surgelati": {"carbs": 11, "kcal": 68},
+     "Farina di ceci": {"carbs": 58, "kcal": 364},
+     "Fiocchi di latte(magri)": {"protein": 10, "kcal": 80},
+     "Olive": {"fat": 15, "kcal": 145},
+     "Edamame": {"carbs": 10, "kcal": 121},
     "Tonno in scatola al naturale(sgocciolato)": {"protein": 23, "kcal": 103},
      "Tonno in scatola in olio d'oliva(sgocciolato)": {"protein": 25, "kcal": 198},
     "Coscia di pollo(spellata)": {"protein": 20, "kcal": 167},
