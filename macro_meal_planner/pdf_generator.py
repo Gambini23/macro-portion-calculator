@@ -1,15 +1,9 @@
-import os
-import tempfile
 from fpdf import FPDF
+import tempfile
 
 def generate_pdf(pasti, kcal_total, split, distrib):
-    # 1. Configurazione Percorsi Font
-    # Supponendo che i file .ttf siano in una cartella chiamata 'fonts' nella root del progetto
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    font_bold = os.path.join(BASE_DIR, "fonts", "DejaVuSans-Bold.ttf")
-    font_regular = os.path.join(BASE_DIR, "fonts", "DejaVuSans.ttf")
-
-    disclaimer = """ Il presente consiglio alimentare ha esclusivamente finalità informative ed esemplificative.
+    # Testi originali (lasciamoli in UTF-8 qui sopra)
+    disclaimer = """  Il presente consiglio alimentare ha esclusivamente finalità informative ed esemplificative.
 Le combinazioni alimentari, le frequenze settimanali e le porzioni suggerite sono pensate
 per offrire un orientamento generale sulla distribuzione dei macronutrienti e non
 costituiscono in alcun modo una prescrizione o una somministrazione dietetica
@@ -29,8 +23,9 @@ Raffaele.
 L’autore declina ogni responsabilità derivante da un uso improprio o non conforme delle
 informazioni contenute nel documento. Per una valutazione alimentare personalizzata, si
 raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vigente.
- """ # (Il tuo testo rimane invariato)
-    linee_guida = """ LINEE GUIDA GENERALI DA SEGUIRE A TAVOLA
+
+  """
+    linee_guida = """  LINEE GUIDA GENERALI DA SEGUIRE A TAVOLA
 
 Metodi di cottura consigliati:
 - Preferisci vapore, forno, friggitrice ad aria, griglia, padella antiaderente, cotture a bassa temperatura o sottovuoto.
@@ -58,107 +53,86 @@ Alimenti da limitare o evitare:
 Buone abitudini:
 - Mangia lentamente, non saltare pasti, pesa le porzioni.
 - Bilancia ogni pasto con fonti di proteine, carboidrati e grassi.
-- Prepara con cura, evita improvvisazioni. """ # (Il tuo testo rimane invariato)
-pdf = FPDF()
+- Prepara con cura, evita improvvisazioni.    """
 
-    # 1. GESTIONE DINAMICA FONT (Percorso relativo alla cartella del progetto)
-    # Cerca la cartella 'fonts' nella root del progetto
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    font_bold = os.path.join(BASE_DIR, "fonts", "DejaVuSans-Bold.ttf")
-    font_regular = os.path.join(BASE_DIR, "fonts", "DejaVuSans.ttf")
-
-    # Registrazione font (con controllo esistenza per evitare crash)
-    if os.path.exists(font_bold) and os.path.exists(font_regular):
-        pdf.add_font('DejaVu', 'B', font_bold, uni=True)
-        pdf.add_font('DejaVu', '', font_regular, uni=True)
-        font_name = "DejaVu"
-    else:
-        # Fallback se non trovi i file .ttf nella cartella fonts
-        font_name = "Arial" 
-
+    pdf = FPDF()
+    # NON usiamo add_font, usiamo i font core di sistema
     pdf.add_page()
+    font_std = "Helvetica"
+
+    # Funzione interna per pulire i testi ed evitare errori di codifica
+    def clean_text(text):
+        return text.encode('latin-1', 'replace').decode('latin-1')
 
     # --- INTESTAZIONE ---
-    pdf.set_font(font_name, 'B', 14)
-    pdf.cell(0, 10, f"PIANO PASTI - {int(kcal_total)} kcal giornaliere", ln=True)
+    pdf.set_font(font_std, 'B', 14)
+    pdf.cell(0, 10, clean_text(f"PIANO PASTI - {int(kcal_total)} kcal giornaliere"), ln=True)
     pdf.ln(4)
-    pdf.set_font(font_name, '', 11)
-    pdf.cell(
-        0,
-        10,
-        f"Distribuzione macronutrienti: Carboidrati {int(split['carbs']*100)}% | Proteine {int(split['protein']*100)}% | Grassi {int(split['fat']*100)}%",
-        ln=True,
-    )
+    pdf.set_font(font_std, '', 11)
+    header_macro = f"Distribuzione macronutrienti: Carboidrati {int(split['carbs']*100)}% | Proteine {int(split['protein']*100)}% | Grassi {int(split['fat']*100)}%"
+    pdf.cell(0, 10, clean_text(header_macro), ln=True)
     pdf.ln(5)
 
-    # --- SEZIONE PASTI ---
+    # --- PASTI ---
     for pasto, data in pasti.items():
-        # Se il pasto è allo 0%, non lo stampo nel PDF
         if distrib[pasto] == 0:
             continue
-            
-        pdf.set_font(font_name, 'B', 13)
-        pdf.cell(0, 10, f"{pasto.upper()} ({int(distrib[pasto]*100)}% = {int(data['kcal'])} kcal)", ln=True)
         
-        # Macronutrienti
-        pdf.set_font(font_name, '', 11)
+        pdf.set_font(font_std, 'B', 13)
+        pdf.cell(0, 10, clean_text(f"{pasto.upper()} ({int(distrib[pasto]*100)}% = {int(data['kcal'])} kcal)"), ln=True)
+        
+        pdf.set_font(font_std, '', 11)
         fat_val = data['macros']['fat']
         fat_text = f"{fat_val}g" if fat_val >= 5 else "quota coperta da altri alimenti"
 
-        # Riga Macronutrienti (Carboidrati, Proteine, Grassi)
-        pdf.set_font(font_name, 'B', 11)
+        pdf.set_font(font_std, 'B', 11)
         pdf.write(6, "Carboidrati: ")
-        pdf.set_font(font_name, '', 11)
+        pdf.set_font(font_std, '', 11)
         pdf.write(6, f"{data['macros']['carbs']}g    ")
 
-        pdf.set_font(font_name, 'B', 11)
+        pdf.set_font(font_std, 'B', 11)
         pdf.write(6, "Proteine: ")
-        pdf.set_font(font_name, '', 11)
+        pdf.set_font(font_header, '', 11)
         pdf.write(6, f"{data['macros']['protein']}g    ")
 
-        pdf.set_font(font_name, 'B', 11)
+        pdf.set_font(font_std, 'B', 11)
         pdf.write(6, "Grassi: ")
-        pdf.set_font(font_name, '', 11)
-        pdf.write(6, fat_text)
+        pdf.set_font(font_std, '', 11)
+        pdf.write(6, clean_text(fat_text))
         pdf.ln(10)
 
-        # Sezione Esempi Alimenti
-        pdf.set_font(font_name, 'B', 12)
+        pdf.set_font(font_std, 'B', 12)
         pdf.cell(0, 10, "Esempi alimenti:", ln=True)
-        pdf.set_font(font_name, '', 11)
-
+        
         for macro, items in data['foods'].items():
-            pdf.set_font(font_name, 'B', 11)
+            pdf.set_font(font_std, 'B', 11)
             pdf.write(6, f"{macro.capitalize()}: ")
-            pdf.set_font(font_name, '', 11)
-
+            pdf.set_font(font_std, '', 11)
+            
+            # Pulizia degli alimenti (se hanno accenti)
+            txt_items = clean_text(items) if items.strip() != "" else "Nessun alimento suggerito"
             if macro == "fat" and fat_val < 5:
-                pdf.multi_cell(0, 8, "quota coperta da altri alimenti")
-            elif not items or items.strip() == "":
-                pdf.multi_cell(0, 8, "Nessun alimento suggerito")
-            else:
-                pdf.multi_cell(0, 8, items)
-
+                txt_items = "quota coperta da altri alimenti"
+            
+            pdf.multi_cell(0, 8, txt_items)
         pdf.ln(3)
 
     # --- LINEE GUIDA ---
     pdf.add_page()
-    pdf.set_font(font_name, 'B', 14)
+    pdf.set_font(font_std, 'B', 14)
     pdf.cell(0, 10, "LINEE GUIDA GENERALI", ln=True)
     pdf.ln(2)
-    pdf.set_font(font_name, '', 10)
-    pdf.multi_cell(0, 6, linee_guida.strip())
+    pdf.set_font(font_std, '', 10)
+    pdf.multi_cell(0, 6, clean_text(linee_guida.strip()))
 
     # --- DISCLAIMER ---
     pdf.add_page()
-    pdf.set_font(font_name, 'B', 14)
+    pdf.set_font(font_std, 'B', 14)
     pdf.cell(0, 10, "DISCLAIMER", ln=True)
     pdf.ln(2)
-    pdf.set_font(font_name, '', 11)
-    pdf.multi_cell(0, 5, disclaimer.strip())
+    pdf.set_font(font_std, '', 10) # Leggermente più piccolo per farlo stare
+    pdf.multi_cell(0, 5, clean_text(disclaimer.strip()))
 
-    # --- GENERAZIONE FILE TEMPORANEO ---
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
     pdf.output(tmp.name)
     return tmp.name
-   
