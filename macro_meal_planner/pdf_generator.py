@@ -2,8 +2,9 @@ from fpdf import FPDF
 import tempfile
 
 def generate_pdf(pasti, kcal_total, split, distrib):
-    # Testi originali (lasciamoli in UTF-8 qui sopra)
-    disclaimer = """  Il presente consiglio alimentare ha esclusivamente finalità informative ed esemplificative.
+    # --- TESTI ---
+    disclaimer = """
+Il presente consiglio alimentare ha esclusivamente finalità informative ed esemplificative.
 Le combinazioni alimentari, le frequenze settimanali e le porzioni suggerite sono pensate
 per offrire un orientamento generale sulla distribuzione dei macronutrienti e non
 costituiscono in alcun modo una prescrizione o una somministrazione dietetica
@@ -22,10 +23,10 @@ Scienze dell'Alimentazione e Gastronomia (Classe L-26) dell’Università Telema
 Raffaele.
 L’autore declina ogni responsabilità derivante da un uso improprio o non conforme delle
 informazioni contenute nel documento. Per una valutazione alimentare personalizzata, si
-raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vigente.
+raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vigente."""
 
-  """
-    linee_guida = """  LINEE GUIDA GENERALI DA SEGUIRE A TAVOLA
+    linee_guida = """
+LINEE GUIDA GENERALI DA SEGUIRE A TAVOLA
 
 Metodi di cottura consigliati:
 - Preferisci vapore, forno, friggitrice ad aria, griglia, padella antiaderente, cotture a bassa temperatura o sottovuoto.
@@ -53,85 +54,87 @@ Alimenti da limitare o evitare:
 Buone abitudini:
 - Mangia lentamente, non saltare pasti, pesa le porzioni.
 - Bilancia ogni pasto con fonti di proteine, carboidrati e grassi.
-- Prepara con cura, evita improvvisazioni.    """
+- Prepara con cura, evita improvvisazioni.
+"""
 
     pdf = FPDF()
-    # NON usiamo add_font, usiamo i font core di sistema
     pdf.add_page()
-    font_std = "Helvetica"
+    
+    # Font standard (non serve caricarli)
+    f_std = "Helvetica"
 
-    # Funzione interna per pulire i testi ed evitare errori di codifica
-    def clean_text(text):
-        return text.encode('latin-1', 'replace').decode('latin-1')
+    # Funzione per gestire gli accenti italiani (necessaria per Helvetica/Arial)
+    def c(t):
+        return str(t).encode('latin-1', 'replace').decode('latin-1')
 
     # --- INTESTAZIONE ---
-    pdf.set_font(font_std, 'B', 14)
-    pdf.cell(0, 10, clean_text(f"PIANO PASTI - {int(kcal_total)} kcal giornaliere"), ln=True)
+    pdf.set_font(f_std, 'B', 14)
+    pdf.cell(0, 10, c(f"PIANO PASTI - {int(kcal_total)} kcal giornaliere"), ln=True)
     pdf.ln(4)
-    pdf.set_font(font_std, '', 11)
-    header_macro = f"Distribuzione macronutrienti: Carboidrati {int(split['carbs']*100)}% | Proteine {int(split['protein']*100)}% | Grassi {int(split['fat']*100)}%"
-    pdf.cell(0, 10, clean_text(header_macro), ln=True)
+    
+    pdf.set_font(f_std, '', 11)
+    macro_info = f"Distribuzione macronutrienti: Carboidrati {int(split['carbs']*100)}% | Proteine {int(split['protein']*100)}% | Grassi {int(split['fat']*100)}%"
+    pdf.cell(0, 10, c(macro_info), ln=True)
     pdf.ln(5)
 
     # --- PASTI ---
     for pasto, data in pasti.items():
         if distrib[pasto] == 0:
             continue
+            
+        pdf.set_font(f_std, 'B', 13)
+        pdf.cell(0, 10, c(f"{pasto.upper()} ({int(distrib[pasto]*100)}% = {int(data['kcal'])} kcal)"), ln=True)
         
-        pdf.set_font(font_std, 'B', 13)
-        pdf.cell(0, 10, clean_text(f"{pasto.upper()} ({int(distrib[pasto]*100)}% = {int(data['kcal'])} kcal)"), ln=True)
-        
-        pdf.set_font(font_std, '', 11)
+        pdf.set_font(f_std, '', 11)
         fat_val = data['macros']['fat']
         fat_text = f"{fat_val}g" if fat_val >= 5 else "quota coperta da altri alimenti"
 
-        pdf.set_font(font_std, 'B', 11)
+        pdf.set_font(f_std, 'B', 11)
         pdf.write(6, "Carboidrati: ")
-        pdf.set_font(font_std, '', 11)
+        pdf.set_font(f_std, '', 11)
         pdf.write(6, f"{data['macros']['carbs']}g    ")
 
-        pdf.set_font(font_std, 'B', 11)
+        pdf.set_font(f_std, 'B', 11)
         pdf.write(6, "Proteine: ")
-        pdf.set_font(font_header, '', 11)
+        pdf.set_font(f_std, '', 11)
         pdf.write(6, f"{data['macros']['protein']}g    ")
 
-        pdf.set_font(font_std, 'B', 11)
+        pdf.set_font(f_std, 'B', 11)
         pdf.write(6, "Grassi: ")
-        pdf.set_font(font_std, '', 11)
-        pdf.write(6, clean_text(fat_text))
+        pdf.set_font(f_std, '', 11)
+        pdf.write(6, c(fat_text))
         pdf.ln(10)
 
-        pdf.set_font(font_std, 'B', 12)
+        pdf.set_font(f_std, 'B', 12)
         pdf.cell(0, 10, "Esempi alimenti:", ln=True)
         
         for macro, items in data['foods'].items():
-            pdf.set_font(font_std, 'B', 11)
-            pdf.write(6, f"{macro.capitalize()}: ")
-            pdf.set_font(font_std, '', 11)
+            pdf.set_font(f_std, 'B', 11)
+            pdf.write(6, c(f"{macro.capitalize()}: "))
+            pdf.set_font(f_std, '', 11)
             
-            # Pulizia degli alimenti (se hanno accenti)
-            txt_items = clean_text(items) if items.strip() != "" else "Nessun alimento suggerito"
+            valore_alimenti = items if items.strip() != "" else "Nessun alimento suggerito"
             if macro == "fat" and fat_val < 5:
-                txt_items = "quota coperta da altri alimenti"
+                valore_alimenti = "quota coperta da altri alimenti"
             
-            pdf.multi_cell(0, 8, txt_items)
+            pdf.multi_cell(0, 8, c(valore_alimenti))
         pdf.ln(3)
 
     # --- LINEE GUIDA ---
     pdf.add_page()
-    pdf.set_font(font_std, 'B', 14)
+    pdf.set_font(f_std, 'B', 14)
     pdf.cell(0, 10, "LINEE GUIDA GENERALI", ln=True)
     pdf.ln(2)
-    pdf.set_font(font_std, '', 10)
-    pdf.multi_cell(0, 6, clean_text(linee_guida.strip()))
+    pdf.set_font(f_std, '', 10)
+    pdf.multi_cell(0, 6, c(linee_guida.strip()))
 
     # --- DISCLAIMER ---
     pdf.add_page()
-    pdf.set_font(font_std, 'B', 14)
+    pdf.set_font(f_std, 'B', 14)
     pdf.cell(0, 10, "DISCLAIMER", ln=True)
     pdf.ln(2)
-    pdf.set_font(font_std, '', 10) # Leggermente più piccolo per farlo stare
-    pdf.multi_cell(0, 5, clean_text(disclaimer.strip()))
+    pdf.set_font(f_std, '', 9) # Testo piccolo per farlo stare
+    pdf.multi_cell(0, 5, c(disclaimer.strip()))
 
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
     pdf.output(tmp.name)
