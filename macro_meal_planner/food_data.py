@@ -1,4 +1,5 @@
 FOODS_COLAZIONE = {
+     "Muesli": {"carbs": 64, "kcal": 370},
      "Olio di cocco": {"fat": 100, "kcal": 900},
      "Feta": {"fat": 21, "kcal": 264},
      "Farina di ceci": {"carbs": 58, "kcal": 364},
