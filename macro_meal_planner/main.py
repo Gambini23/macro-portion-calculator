@@ -51,7 +51,7 @@ else:
 st.divider()
 
 # --- 2. RIPARTIZIONE CALORICA PASTI ---
-st.subheader("1️⃣ Distribuisci le Calorie tra i pasti")
+st.subheader(" Distribuisci le Calorie tra i pasti")
 c1, c2, c3, c4, c5 = st.columns(5)
 p_col = c1.slider("% Colazione", 0, 100, 20)
 p_spt = c2.slider("% Spuntino", 0, 100, 10)
@@ -65,7 +65,7 @@ if (p_col + p_spt + p_prz + p_mer + p_cen) != 100:
 st.divider()
 
 # --- 3. CONFIGURAZIONE MACRO SINGOLI PASTI ---
-st.subheader("2️⃣ Configura i Macro per ogni singolo pasto")
+st.subheader(" Configura i Macro per ogni singolo pasto")
 st.caption("Imposta la % di Carboidrati, Proteine e Grassi specifica per ogni momento della giornata.")
 
 elenco_pasti = {
