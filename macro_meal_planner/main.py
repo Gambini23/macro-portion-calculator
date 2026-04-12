@@ -77,8 +77,56 @@ st.divider()
 st.subheader("3️⃣ Personalizza Testi PDF")
 expander_testi = st.expander("Modifica Consigli e Disclaimer", expanded=False)
 with expander_testi:
-    default_consigli = """LINEE GUIDA GENERALI... (il tuo testo)"""
-    default_discl = """Il presente consiglio alimentare... (il tuo testo)"""
+    default_consigli = """Metodi di cottura consigliati:
+- Preferisci vapore, forno, friggitrice ad aria, griglia, padella antiaderente, cotture a bassa temperatura o sottovuoto.
+
+Acqua e idratazione:
+- Almeno 1 litro ogni 1000 kcal assunte, più acqua in caso di allenamenti o caldo.
+- No a bevande zuccherate o gassate.
+
+Olio extravergine d'oliva:
+- Solo a crudo, evita la cottura per non alterare i grassi.
+
+Sale e sodio:
+- Max 5 g al giorno. Usa spezie, erbe, limone o aceto come alternativa.
+
+Spezie ed erbe aromatiche:
+- Libero utilizzo. Ricche di benefici, nessuna caloria.
+
+Verdure:
+- Sempre a pranzo e cena. Quantità: doppia rispetto alle proteine.
+- Varia colori e tipi. Alterna crudo/cotto.
+
+Alimenti da limitare o evitare:
+- Cibi ultra-processati, zuccheri aggiunti, alcolici, grassi trans.
+
+Buone abitudini:
+- Mangia lentamente, non saltare pasti, pesa le porzioni.
+- Bilancia ogni pasto con fonti di proteine, carboidrati e grassi.
+- Prepara con cura, evita improvvisazioni."""
+    default_discl = """Il presente consiglio alimentare ha esclusivamente finalità informative ed esemplificative.
+Le combinazioni alimentari, le frequenze settimanali e le porzioni suggerite sono pensate
+per offrire un orientamento generale sulla distribuzione dei macronutrienti e non
+costituiscono in alcun modo una prescrizione o una somministrazione dietetica
+personalizzata.
+Le indicazioni contenute nel documento non tengono conto di eventuali allergie,
+intolleranze alimentari, patologie pregresse o condizioni cliniche specifiche, e pertanto
+non devono essere utilizzate come sostitutive del parere professionale di figure sanitarie
+abilitate, quali medici dietologi, biologi nutrizionisti o dietisti.
+Le dosi riportate sono state inserite a scopo didattico per fornire un esempio pratico
+riferito a un soggetto sano, di sesso ed età definiti, con finalità puramente illustrative in
+ambito sportivo e educativo.
+Le indicazioni nutrizionali qui esposte si basano su conoscenze acquisite tramite
+formazione in nutrizione sportiva, certificata presso Accademia Italiana Fitness e Sport
+Science Lab, nonché sugli attuali studi universitari in corso presso il corso di laurea in
+Scienze dell'Alimentazione e Gastronomia (Classe L-26) dell’Università Telematica San
+Raffaele.
+L’autore declina ogni responsabilità derivante da un uso improprio o non conforme delle
+informazioni contenute nel documento. Per una valutazione alimentare personalizzata, si
+raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vigente.
+
+
+"""
     testo_consigli = st.text_area("Pagina Consigli Alimentari:", value=default_consigli, height=150)
     testo_discl = st.text_area("Pagina Disclaimer:", value=default_discl, height=150)
 
