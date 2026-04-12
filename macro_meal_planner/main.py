@@ -49,8 +49,11 @@ st.divider()
 
 # --- 3. MODULAZIONE MACRO LIVE ---
 st.subheader("2️⃣ Modula i Macro e controlla i Totali")
+
+# INIZIALIZZIAMO QUI LE VARIABILI TOTALI
 tot_carbo_g, tot_prote_g, tot_grass_g = 0.0, 0.0, 0.0
 config_finale_macro = {}
+
 col_sliders, col_dashboard = st.columns([0.6, 0.4])
 
 with col_sliders:
@@ -59,17 +62,42 @@ with col_sliders:
             kcal_pasto = kcal_total * (perc / 100)
             with st.expander(f"Modifica {nome} ({int(kcal_pasto)} kcal)", expanded=True):
                 ca, pr, gr = st.columns(3)
+                # Chiavi univoche per evitare conflitti
                 c_p = ca.slider(f"% Carb", 0, 100, 50, key=f"c_{nome}")
                 p_p = pr.slider(f"% Prot", 0, 100, 20, key=f"p_{nome}")
                 g_p = gr.slider(f"% Gras", 0, 100, 30, key=f"g_{nome}")
-                g_c, g_p_gr, g_f = (kcal_pasto*(c_p/100))/4, (kcal_pasto*(p_p/100))/4, (kcal_pasto*(g_p/100))/9
-                tot_carbo_g += g_c; tot_prote_g += g_p_gr; tot_grass_g += g_f
-                config_finale_macro[nome] = {"split": {"carbs": c_p/100, "protein": p_p/100, "fat": g_p/100}, "grammi": (g_c, g_p_gr, g_f)}
+                
+                # Calcolo grammi istantaneo del singolo pasto
+                g_c = (kcal_pasto * (c_p/100)) / 4
+                g_p_gr = (kcal_pasto * (p_p/100)) / 4
+                g_f = (kcal_pasto * (g_p/100)) / 9
+                
+                # Feedback immediato a Marco
+                st.markdown(f"**Target Grammi:** :orange[{g_c:.1f}g Carbo] | :blue[{g_p_gr:.1f}g Prot] | :green[{g_f:.1f}g Grassi]")
+                
+                if (c_p + p_p + g_p) != 100:
+                    st.error(f"La somma dei macro per {nome} deve fare 100% (attuale: {c_p + p_p + g_p}%)")
+                
+                # Aggiorniamo i totali generali
+                tot_carbo_g += g_c
+                tot_prote_g += g_p_gr
+                tot_grass_g += g_f
+                
+                config_finale_macro[nome] = {
+                    "split": {"carbs": c_p/100, "protein": p_p/100, "fat": g_p/100}, 
+                    "grammi": (g_c, g_p_gr, g_f)
+                }
 
+# La dashboard ora riceve i totali sommati correttamente dal ciclo sopra
 with col_dashboard:
+    st.markdown("### Riepilogo Giornaliero")
     st.metric("Carboidrati Totali", f"{round(tot_carbo_g, 1)} g")
     st.metric("Proteine Totali", f"{round(tot_prote_g, 1)} g")
     st.metric("Grassi Totali", f"{round(tot_grass_g, 1)} g")
+    
+    # Calcolo calorie totali basato sui grammi (per verifica)
+    kcal_check = (tot_carbo_g * 4) + (tot_prote_g * 4) + (tot_grass_g * 9)
+    st.caption(f"Calorie totali calcolate: {int(kcal_check)} kcal")
 
 st.divider()
 
