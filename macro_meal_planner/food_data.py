@@ -1,3 +1,8 @@
+# food_data.py
+
+# Costanti caloriche per macronutriente
+KCAL_PER_GRAM = {"carbs": 4, "protein": 4, "fat": 9}
+
 FOODS_COLAZIONE = {
     "Muesli": {"carbs": 64, "kcal": 370},
     "Olio di cocco": {"fat": 100, "kcal": 900},
@@ -78,5 +83,9 @@ FOODS_PASTI = {
     "Albume": {"protein": 11, "kcal": 52},
     "Mozzarella light": {"protein": 22, "kcal": 170},
     "Bresaola": {"protein": 32, "kcal": 151},
-    "Prosciutto cotto": {"protein": 20, "kcal": 14
-KCAL_PER_GRAM = {"carbs": 4, "protein": 4, "fat": 9}
+    "Prosciutto cotto": {"protein": 20, "kcal": 145},
+    "Prosciutto crudo": {"protein": 28, "kcal": 215},
+    "Ricotta light": {"protein": 11, "kcal": 136},
+    "Olio EVO": {"fat": 100, "kcal": 900},
+    "Avocado": {"fat": 15, "kcal": 160},
+}
