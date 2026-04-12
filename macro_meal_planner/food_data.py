@@ -39,6 +39,8 @@ FOODS_COLAZIONE = {
 }
 
 FOODS_PASTI = {
+     "Bulgur": {"carbs": 75, "kcal": 340}
+     "Farina di mais(polenta)": {"carbs": 77, "kcal": 360}
      "Olio di cocco": {"fat": 100, "kcal": 900},
      "Fegato di vitello": {"protein": 20, "kcal": 134},
      "Feta": {"fat": 21, "kcal": 264},
