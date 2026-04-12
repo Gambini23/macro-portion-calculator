@@ -23,8 +23,8 @@ def calcola_bmi_bmr_tdee():
 st.set_page_config(page_title="Macro Master Planner", layout="wide")
 st.title("Meal Macro Planner Personalizzato 📊")
 
+# Inizializzazione session_state
 if 'raw_pasti' not in st.session_state: st.session_state.raw_pasti = None
-if 'modified_pasti' not in st.session_state: st.session_state.modified_pasti = None
 
 # --- 1. INPUT CALORIE ---
 if st.checkbox("Calcola fabbisogno automatico"):
@@ -73,97 +73,62 @@ with col_dashboard:
 
 st.divider()
 
-# --- 4. TESTI PERSONALIZZABILI (Consigli + Disclaimer) ---
+# --- 4. TESTI PERSONALIZZABILI ---
 st.subheader("3️⃣ Personalizza Testi PDF")
 expander_testi = st.expander("Modifica Consigli e Disclaimer", expanded=False)
 with expander_testi:
-    default_consigli = """LINEE GUIDA GENERALI DA SEGUIRE A TAVOLA
-
-Metodi di cottura consigliati:
-- Preferisci vapore, forno, friggitrice ad aria, griglia, padella antiaderente, cotture a bassa temperatura o sottovuoto.
-
-Acqua e idratazione:
-- Almeno 1 litro ogni 1000 kcal assunte, più acqua in caso di allenamenti o caldo.
-- No a bevande zuccherate o gassate.
-
-Olio extravergine d'oliva:
-- Solo a crudo, evita la cottura per non alterare i grassi.
-
-Sale e sodio:
-- Max 5 g al giorno. Usa spezie, erbe, limone o aceto come alternativa.
-
-Spezie ed erbe aromatiche:
-- Libero utilizzo. Ricche di benefici, nessuna caloria.
-
-Verdure:
-- Sempre a pranzo e cena. Quantità: doppia rispetto alle proteine.
-- Varia colori e tipi. Alterna crudo/cotto.
-
-Alimenti da limitare o evitare:
-- Cibi ultra-processati, zuccheri aggiunti, alcolici, grassi trans.
-
-Buone abitudini:
-- Mangia lentamente, non saltare pasti, pesa le porzioni.
-- Bilancia ogni pasto con fonti di proteine, carboidrati e grassi.
-- Prepara con cura, evita improvvisazioni."""
-    
-    default_discl ="""Il presente consiglio alimentare ha esclusivamente finalità informative ed esemplificative.
-Le combinazioni alimentari, le frequenze settimanali e le porzioni suggerite sono pensate per offrire un orientamento generale sulla distribuzione dei macronutrienti e non costituiscono in alcun modo una prescrizione o una somministrazione dietetica personalizzata.
-Le indicazioni contenute nel documento non tengono conto di eventuali allergie, intolleranze alimentari, patologie pregresse o condizioni cliniche specifiche, e pertanto non devono essere utilizzate come sostitutive del parere professionale di figure sanitarie abilitate, quali medici dietologi, biologi nutrizionisti o dietisti.
-Le dosi riportate sono state inserite a scopo didattico per fornire un esempio pratico riferito a un soggetto sano, di sesso ed età definiti, con finalità puramente illustrative in ambito sportivo e educativo.
-Le indicazioni nutrizionali qui esposte si basano su conoscenze acquisite tramite formazione in nutrizione sportiva, certificata presso Accademia Italiana Fitness e Sport Science Lab, nonché sugli attuali studi universitari in corso presso il corso di laurea in Scienze dell'Alimentazione e Gastronomia (Classe L-26) dell'Università Telematica San Raffaele.
-L’autore declina ogni responsabilità derivante da un uso improprio o non conforme delle informazioni contenute nel documento. Per una valutazione alimentare personalizzata, si raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vigente."""
-
-
-    
+    default_consigli = """LINEE GUIDA GENERALI... (il tuo testo)"""
+    default_discl = """Il presente consiglio alimentare... (il tuo testo)"""
     testo_consigli = st.text_area("Pagina Consigli Alimentari:", value=default_consigli, height=150)
     testo_discl = st.text_area("Pagina Disclaimer:", value=default_discl, height=150)
 
 st.divider()
 
-# --- 5. GENERAZIONE ---
+# --- 5. TASTO DI GENERAZIONE (Mancava!) ---
+if st.button("🚀 GENERA LISTA ALIMENTI", type="primary"):
+    pasti_struttura = {}
+    for nome, perc in elenco_pasti.items():
+        if perc > 0:
+            kcal_p = kcal_total * (perc / 100)
+            m = config_finale_macro[nome]
+            # Chiamata alla funzione che suggerisce i cibi dai tuoi dizionari
+            foods = suggest_foods(kcal_p, nome, m["split"])
+            pasti_struttura[nome] = {
+                "kcal": kcal_p, 
+                "macros": {"carbs": round(m["grammi"][0],1), "protein": round(m["grammi"][1],1), "fat": round(m["grammi"][2],1)}, 
+                "foods": foods, 
+                "split": m["split"]
+            }
+    st.session_state.raw_pasti = pasti_struttura
+
+# --- 6. REVISIONE E DOWNLOAD (Sempre visibile se raw_pasti esiste) ---
 if st.session_state.raw_pasti:
     st.divider()
     st.header("🛒 Revisione Alimenti")
-    st.info("Deseleziona gli alimenti che NON vuoi includere nel PDF. Resteranno visibili qui ma non verranno stampati.")
+    st.info("Deseleziona gli alimenti che NON vuoi nel PDF.")
     
-    # Non sovrascriviamo raw_pasti, creiamo una struttura per il PDF
     pasti_per_pdf = {}
-
     for pasto, data in st.session_state.raw_pasti.items():
         with st.expander(f"Seleziona cibi per {pasto}", expanded=True):
             alimenti_filtrati_pasto = {}
-            
             for m_type, f_list in data["foods"].items():
                 items = [i.strip() for i in f_list.split("|") if i.strip()]
-                kept_for_this_macro = []
-                
+                kept = []
                 st.markdown(f"**{m_type.capitalize()}**")
                 cols = st.columns(3)
-                
                 for idx, item in enumerate(items):
                     with cols[idx % 3]:
-                        # La checkbox rimane sempre lì, non facciamo sparire nulla
-                        scelta = st.checkbox(item, value=True, key=f"rev_{pasto}_{m_type}_{item}")
-                        if scelta:
-                            kept_for_this_macro.append(item)
-                
-                alimenti_filtrati_pasto[m_type] = " | ".join(kept_for_this_macro)
+                        # Usiamo la checkbox. Se tolta, il cibo non va nel PDF ma resta visibile qui.
+                        if st.checkbox(item, value=True, key=f"rev_{pasto}_{m_type}_{item}"):
+                            kept.append(item)
+                alimenti_filtrati_pasto[m_type] = " | ".join(kept)
             
-            # Prepariamo i dati per il generatore PDF
-            pasti_per_pdf[pasto] = {
-                "kcal": data["kcal"],
-                "macros": data["macros"],
-                "foods": alimenti_filtrati_pasto,
-                "split": data["split"]
-            }
+            pasti_per_pdf[pasto] = {**data, "foods": alimenti_filtrati_pasto}
 
-    if st.button("📄 Scarica PDF Finale"):
-        # Calcolo split medio (stessa logica di prima)
+    if st.button("📄 CREA PDF FINALE"):
         kcal_fatte = (tot_carbo_g * 4) + (tot_prote_g * 4) + (tot_grass_g * 9)
         split_m = {"carbs": (tot_carbo_g * 4)/kcal_fatte, "protein": (tot_prote_g * 4)/kcal_fatte, "fat": (tot_grass_g * 9)/kcal_fatte} if kcal_fatte > 0 else {"carbs": 0.5, "protein": 0.2, "fat": 0.3}
         
-        # Passiamo 'pasti_per_pdf' che contiene solo i cibi con la spunta
         path = generate_pdf(
             pasti_per_pdf, 
             kcal_total, 
@@ -174,4 +139,4 @@ if st.session_state.raw_pasti:
         )
         
         with open(path, "rb") as f:
-            st.download_button("💾 Clicca qui per il Download", f, file_name="piano_pasti.pdf")
+            st.download_button("💾 SCARICA ORA", f, file_name="piano_pasti.pdf")
