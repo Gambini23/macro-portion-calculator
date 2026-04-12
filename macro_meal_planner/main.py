@@ -74,7 +74,7 @@ st.divider()
 
 # --- DISCLAIMER MODIFICABILE ---
 st.subheader("3️⃣ Personalizza Disclaimer (Terza Pagina)")
-disclaimer_default = """Il presente consiglio alimentare ha esclusivamente finalità informative ed esemplificative... [Il resto del tuo testo originale]"""
+disclaimer_default = """Il presente consiglio alimentare ha esclusivamente finalità informative ed esemplificative..."""
 
 # Area di testo pre-compilata ma modificabile
 testo_disclaimer_utente = st.text_area("Puoi modificare il testo che apparirà nell'ultima pagina del PDF:", value=disclaimer_default, height=200)
