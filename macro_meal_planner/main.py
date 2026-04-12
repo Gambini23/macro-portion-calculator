@@ -122,39 +122,56 @@ L’autore declina ogni responsabilità derivante da un uso improprio o non conf
 st.divider()
 
 # --- 5. GENERAZIONE ---
-if st.button("Genera Piano Alimenti", type="primary"):
-    pasti_struttura = {}
-    for nome, perc in elenco_pasti.items():
-        if perc > 0:
-            kcal_p = kcal_total * (perc / 100)
-            m = config_finale_macro[nome]
-            foods = suggest_foods(kcal_p, nome, m["split"])
-            pasti_struttura[nome] = {"kcal": kcal_p, "macros": {"carbs": round(m["grammi"][0],1), "protein": round(m["grammi"][1],1), "fat": round(m["grammi"][2],1)}, "foods": foods, "split": m["split"]}
-    st.session_state.raw_pasti = pasti_struttura
-    st.session_state.modified_pasti = None
-
 if st.session_state.raw_pasti:
-    st.header("🛒 Revisione e Download")
-    display_pasti = st.session_state.modified_pasti if st.session_state.modified_pasti else st.session_state.raw_pasti
-    new_modified = {}
-    for pasto, data in display_pasti.items():
-        with st.expander(f"Cibi {pasto}", expanded=True):
-            pasto_foods = {}
+    st.divider()
+    st.header("🛒 Revisione Alimenti")
+    st.info("Deseleziona gli alimenti che NON vuoi includere nel PDF. Resteranno visibili qui ma non verranno stampati.")
+    
+    # Non sovrascriviamo raw_pasti, creiamo una struttura per il PDF
+    pasti_per_pdf = {}
+
+    for pasto, data in st.session_state.raw_pasti.items():
+        with st.expander(f"Seleziona cibi per {pasto}", expanded=True):
+            alimenti_filtrati_pasto = {}
+            
             for m_type, f_list in data["foods"].items():
                 items = [i.strip() for i in f_list.split("|") if i.strip()]
-                kept = []
+                kept_for_this_macro = []
+                
                 st.markdown(f"**{m_type.capitalize()}**")
                 cols = st.columns(3)
+                
                 for idx, item in enumerate(items):
                     with cols[idx % 3]:
-                        if st.checkbox(item, value=True, key=f"check_{pasto}_{m_type}_{item}"): kept.append(item)
-                pasto_foods[m_type] = " | ".join(kept)
-            new_modified[pasto] = {"kcal": data["kcal"], "macros": data["macros"], "foods": pasto_foods, "split": data["split"]}
-    st.session_state.modified_pasti = new_modified
+                        # La checkbox rimane sempre lì, non facciamo sparire nulla
+                        scelta = st.checkbox(item, value=True, key=f"rev_{pasto}_{m_type}_{item}")
+                        if scelta:
+                            kept_for_this_macro.append(item)
+                
+                alimenti_filtrati_pasto[m_type] = " | ".join(kept_for_this_macro)
+            
+            # Prepariamo i dati per il generatore PDF
+            pasti_per_pdf[pasto] = {
+                "kcal": data["kcal"],
+                "macros": data["macros"],
+                "foods": alimenti_filtrati_pasto,
+                "split": data["split"]
+            }
 
     if st.button("📄 Scarica PDF Finale"):
+        # Calcolo split medio (stessa logica di prima)
         kcal_fatte = (tot_carbo_g * 4) + (tot_prote_g * 4) + (tot_grass_g * 9)
         split_m = {"carbs": (tot_carbo_g * 4)/kcal_fatte, "protein": (tot_prote_g * 4)/kcal_fatte, "fat": (tot_grass_g * 9)/kcal_fatte} if kcal_fatte > 0 else {"carbs": 0.5, "protein": 0.2, "fat": 0.3}
-        path = generate_pdf(st.session_state.modified_pasti, kcal_total, split_m, {k: v/100 for k,v in elenco_pasti.items()}, disclaimer_custom=testo_discl, consigli_custom=testo_consigli)
+        
+        # Passiamo 'pasti_per_pdf' che contiene solo i cibi con la spunta
+        path = generate_pdf(
+            pasti_per_pdf, 
+            kcal_total, 
+            split_m, 
+            {k: v/100 for k,v in elenco_pasti.items()}, 
+            disclaimer_custom=testo_discl,
+            consigli_custom=testo_consigli
+        )
+        
         with open(path, "rb") as f:
-            st.download_button("💾 Download PDF", f, file_name="piano_pasti.pdf")
+            st.download_button("💾 Clicca qui per il Download", f, file_name="piano_pasti.pdf")
