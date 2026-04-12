@@ -10,7 +10,6 @@ def calcola_bmi_bmr_tdee():
     peso = st.number_input("Peso (kg)", min_value=30.0, max_value=200.0, value=70.0)
     altezza = st.number_input("Altezza (cm)", min_value=120.0, max_value=220.0, value=170.0)
 
-    # 🔹 FIX: selectbox leggibile → uso dict
     opzioni_attivita = {
         "Leggero (poco movimento)": "leggero",
         "Moderato (attività 3-4 volte/sett)": "moderato",
@@ -40,49 +39,43 @@ def calcola_bmi_bmr_tdee():
     else:  # Maschio
         bmr = 66.473 + (13.7156 * peso) + (5.033 * altezza) - (6.775 * eta)
 
-    # Calcolo TDEE con fattori diversi maschio/femmina
+    # Calcolo TDEE
     if sesso == "Femmina":
-        if attivita == "leggero":
-            fattore = 1.42
-        elif attivita == "moderato":
-            fattore = 1.56
-        elif attivita == "pesante":
-            fattore = 1.73
-    else:  # Maschio
-        if attivita == "leggero":
-            fattore = 1.41
-        elif attivita == "moderato":
-            fattore = 1.70
-        elif attivita == "pesante":
-            fattore = 2.01
+        fattori = {"leggero": 1.42, "moderato": 1.56, "pesante": 1.73}
+    else:
+        fattori = {"leggero": 1.41, "moderato": 1.70, "pesante": 2.01}
+    
+    tdee = bmr * fattori[attivita]
 
-    tdee = bmr * fattore
-
-    # Output
     st.subheader("Risultati")
-    st.markdown(f"**BMI**: {bmi} ({categoria})")
-    st.markdown(f"**BMR**: {int(bmr)} kcal")
-    st.markdown(f"**TDEE** (fabbisogno): {int(tdee)} kcal")
+    col_res1, col_res2, col_res3 = st.columns(3)
+    col_res1.metric("BMI", f"{bmi}", categoria)
+    col_res2.metric("BMR", f"{int(bmr)} kcal")
+    col_res3.metric("TDEE", f"{int(tdee)} kcal")
 
     return int(tdee)
 
-
-
+# --- CONFIGURAZIONE PAGINA ---
+st.set_page_config(page_title="Meal Macro Planner", layout="wide")
 st.title("Meal Macro Planner")
 
-# Calcolo/fissazione calorie totali
 if 'raw_pasti' not in st.session_state:
     st.session_state.raw_pasti = None
 if 'modified_pasti' not in st.session_state:
     st.session_state.modified_pasti = None
 
-kcal_total = None
+# --- INPUT CALORIE ---
+kcal_total = 1600
 if st.checkbox("Calcola BMI, BMR e TDEE"):
     fabbisogno = calcola_bmi_bmr_tdee()
     kcal_total = st.number_input("Modifica o conferma le kcal", value=fabbisogno)
 else:
     kcal_total = st.number_input("Inserisci manualmente le kcal giornaliere", min_value=1000, max_value=4000, value=1600)
 
+st.divider()
+
+# --- INPUT PERCENTUALI PASTI ---
+st.subheader("Distribuzione Calorica per Pasto")
 col1, col2, col3, col4, col5 = st.columns(5)
 with col1: perc_col = st.slider("% Colazione", 0, 100, 16)
 with col2: perc_spt = st.slider("% Spuntino", 0, 100, 5)
@@ -90,21 +83,29 @@ with col3: perc_prz = st.slider("% Pranzo", 0, 100, 39)
 with col4: perc_mer = st.slider("% Merenda", 0, 100, 7)
 with col5: perc_cen = st.slider("% Cena", 0, 100, 33)
 
+total_perc_pasti = perc_col + perc_spt + perc_prz + perc_mer + perc_cen
+if total_perc_pasti != 100:
+    st.warning(f"Attenzione: la somma delle percentuali dei pasti è {total_perc_pasti}%. Dovrebbe essere 100%.")
+
+# --- INPUT MACRONUTRIENTI ---
+st.subheader("Ripartizione Macronutrienti (%)")
 colA, colB, colC = st.columns(3)
 with colA: perc_pro = st.slider("% kcal Proteine", 0, 100, 20)
 with colB: perc_carb = st.slider("% kcal Carboidrati", 0, 100, 50)
 with colC: perc_fat = st.slider("% kcal Grassi", 0, 100, 30)
 
-with st.columns(1)[0]:
-    st.markdown(
-        "**Grammatura corrispondente (totale giornata):**  \n"
-        f"Carboidrati: {round((kcal_total * (perc_carb / 100)) / 4, 1)}g  \n"
-        f"Proteine: {round((kcal_total * (perc_pro / 100)) / 4, 1)}g  \n"
-        f"Grassi: {round((kcal_total * (perc_fat / 100)) / 9, 1)}g"
-    )
+if perc_pro + perc_carb + perc_fat != 100:
+    st.error("La somma dei macronutrienti deve essere 100%!")
 
-# Generazione piano
-if st.button("Genera piano pasti completo"):
+# --- VISUALIZZAZIONE MACRO TOTALI ---
+g_carb_tot = round((kcal_total * (perc_carb / 100)) / 4, 1)
+g_pro_tot = round((kcal_total * (perc_pro / 100)) / 4, 1)
+g_fat_tot = round((kcal_total * (perc_fat / 100)) / 9, 1)
+
+st.info(f"**Target Giornaliero:** {g_carb_tot}g Carboidrati | {g_pro_tot}g Proteine | {g_fat_tot}g Grassi")
+
+# --- GENERAZIONE PIANO ---
+if st.button("Genera piano pasti completo", type="primary"):
     split = {"carbs": perc_carb / 100, "protein": perc_pro / 100, "fat": perc_fat / 100}
     distrib = {
         "Colazione": perc_col / 100,
@@ -113,48 +114,69 @@ if st.button("Genera piano pasti completo"):
         "Merenda": perc_mer / 100,
         "Cena": perc_cen / 100,
     }
+    
     pasti = {}
+    tabella_riassuntiva = []
 
     for nome, perc in distrib.items():
-        kcal = kcal_total * perc
+        kcal_pasto = kcal_total * perc
         macros = {
-            "protein": round((kcal * split["protein"]) / 4, 1),
-            "carbs": round((kcal * split["carbs"]) / 4, 1),
-            "fat": round((kcal * split["fat"]) / 9, 1),
+            "protein": round((kcal_pasto * split["protein"]) / 4, 1),
+            "carbs": round((kcal_pasto * split["carbs"]) / 4, 1),
+            "fat": round((kcal_pasto * split["fat"]) / 9, 1),
         }
-        foods = suggest_foods(kcal, nome, split)
+        
+        tabella_riassuntiva.append({
+            "Pasto": nome,
+            "Calorie (kcal)": int(kcal_pasto),
+            "Carbo (g)": macros["carbs"],
+            "Pro (g)": macros["protein"],
+            "Grassi (g)": macros["fat"]
+        })
 
-        pasti[nome] = {"kcal": kcal, "macros": macros, "foods": foods}
+        foods = suggest_foods(kcal_pasto, nome, split)
+        pasti[nome] = {"kcal": kcal_pasto, "macros": macros, "foods": foods}
 
     st.session_state.raw_pasti = pasti
-    st.session_state.modified_pasti = None  # reset eventuali modifiche precedenti
+    st.session_state.modified_pasti = None
+    
+    st.write("### 📈 Riepilogo Grammi per Pasto")
+    st.table(tabella_riassuntiva)
 
-# Visualizzazione e filtro (rimozione)
+# --- REVISIONE E DOWNLOAD ---
 if st.session_state.raw_pasti:
     display_pasti = st.session_state.modified_pasti or st.session_state.raw_pasti
-    st.markdown("## Revisione alimenti (togli con ❌ e poi applica modifiche)")
+    st.divider()
+    st.header("🛒 Revisione Alimenti")
+    st.info("Rimuovi gli alimenti che non desideri con la ❌, poi clicca su 'Scarica PDF'")
+    
     new_modified = {}
 
     for pasto, data in display_pasti.items():
-        st.subheader(f"{pasto}: {int(data['kcal'])} kcal")
-        st.write(f"Carboidrati: {data['macros']['carbs']}g | Proteine: {data['macros']['protein']}g | Grassi: {data['macros']['fat']}g")
-
-        new_foods = {}
-        for macro, food_list in data["foods"].items():
-            items = [item.strip() for item in food_list.split("|") if item.strip()]
-            kept = []
-            st.markdown(f"**{macro.capitalize()}**")
-            for item in items:
-                checkbox_key = f"{pasto}_{macro}_{item}"
-                remove = st.checkbox(f"❌ {item}", key=checkbox_key)
-                if not remove:
-                    kept.append(item)
-            new_foods[macro] = " | ".join(kept)
-        new_modified[pasto] = {"kcal": data["kcal"], "macros": data["macros"], "foods": new_foods}
+        with st.expander(f"{pasto} - {int(data['kcal'])} kcal", expanded=True):
+            st.write(f"**Macro:** C: {data['macros']['carbs']}g | P: {data['macros']['protein']}g | G: {data['macros']['fat']}g")
+            
+            new_foods = {}
+            for macro, food_list in data["foods"].items():
+                items = [item.strip() for item in food_list.split("|") if item.strip()]
+                kept = []
+                st.write(f"**{macro.capitalize()} suggeriti:**")
+                
+                # Layout a colonne per le checkbox degli alimenti
+                cols_alimenti = st.columns(3)
+                for idx, item in enumerate(items):
+                    with cols_alimenti[idx % 3]:
+                        checkbox_key = f"{pasto}_{macro}_{item}"
+                        remove = st.checkbox(f"❌ {item}", key=checkbox_key)
+                        if not remove:
+                            kept.append(item)
+                new_foods[macro] = " | ".join(kept)
+            
+            new_modified[pasto] = {"kcal": data["kcal"], "macros": data["macros"], "foods": new_foods}
 
     st.session_state.modified_pasti = new_modified
 
-    if st.button("📄 Applica modifiche e scarica PDF"):
+    if st.button("📄 Genera e Scarica PDF"):
         split = {"carbs": perc_carb / 100, "protein": perc_pro / 100, "fat": perc_fat / 100}
         distrib = {
             "Colazione": perc_col / 100,
@@ -165,7 +187,7 @@ if st.session_state.raw_pasti:
         }
         final_pasti = st.session_state.modified_pasti
         pdf_path = generate_pdf(final_pasti, kcal_total, split, distrib)
+        
         with open(pdf_path, "rb") as f:
-            st.download_button("📄 Scarica piano pasti in PDF", f, file_name="piano_pasti.pdf")
-
+            st.download_button("💾 Download PDF", f, file_name="piano_pasti_personalizzato.pdf")
     
