@@ -21,6 +21,24 @@ def generate_pdf(pasti, kcal_total, split, distrib, disclaimer_custom=None, cons
         m_p = data['split']
         titolo = f"{pasto.upper()} ({int(data['kcal'])} kcal) [C:{int(m_p['carbs']*100)}% P:{int(m_p['protein']*100)}% G:{int(m_p['fat']*100)}%]"
         pdf.cell(0, 10, c(titolo), ln=True)
+
+    # Target grammi nel PDF
+        pdf.set_font(f_std, '', 11)
+        pdf.cell(0, 8, c(f"Target grammi: Carbo {data['macros']['carbs']}g | Pro {data['macros']['protein']}g | Grassi {data['macros']['fat']}g"), ln=True)
+        
+        for macro, items in data['foods'].items():
+            # Mostra la categoria solo se ci sono cibi selezionati E se la % del macro è > 0
+            # Esempio: se carbs è 0%, data['split']['carbs'] sarà 0.0
+            if items.strip() and data['split'].get(macro, 1) > 0:
+                pdf.set_font(f_std, 'B', 11)
+                pdf.write(6, c(f"{macro.capitalize()}: "))
+                pdf.set_font(f_std, '', 11)
+                pdf.multi_cell(0, 6, c(items))
+        pdf.ln(4)
+
+
+
+        
         
         pdf.set_font(f_std, '', 11)
         pdf.cell(0, 8, c(f"Target grammi: Carbo {data['macros']['carbs']}g | Pro {data['macros']['protein']}g | Grassi {data['macros']['fat']}g"), ln=True)
