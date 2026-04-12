@@ -1,89 +1,176 @@
 FOODS_COLAZIONE = {
-    "Muesli": {"carbs": 64, "kcal": 370},
-    "Olio di cocco": {"fat": 100, "kcal": 900},
-    "Feta": {"fat": 21, "kcal": 264},
-    "Farina di ceci": {"carbs": 58, "kcal": 364},
-    "Fiocchi di latte(magri)": {"protein": 10, "kcal": 80},
-    "Olive": {"fat": 15, "kcal": 145},
-    "Farina di riso": {"carbs": 80, "kcal": 360},
-    "Biscotto Petit(Marie)": {"carbs": 77, "kcal": 440},
-    "Fette biscottate integrali": {"carbs": 67, "kcal": 400},
-    "Yogurt soia": {"protein": 5, "kcal": 100},
+
+     "Muesli": {"carbs": 64, "kcal": 370},
+
+     "Olio di cocco": {"fat": 100, "kcal": 900},
+
+     "Feta": {"fat": 21, "kcal": 264},
+
+     "Farina di ceci": {"carbs": 58, "kcal": 364},
+
+     "Fiocchi di latte(magri)": {"protein": 10, "kcal": 80},
+
+     "Olive": {"fat": 15, "kcal": 145},
+
+     "Farina di riso": {"carbs": 80, "kcal": 360},
+
+     "Biscotto Petit(Marie)": {"carbs": 77, "kcal": 440},
+
+     "Fette biscottate integrali": {"carbs": 67, "kcal": 400},
+
+     "Yogurt soia": {"protein": 5, "kcal": 100},
+
     "Vitargo": {"carbs": 93, "kcal": 372},
+
     "Parmigiano Reggiano": {"protein": 33, "kcal": 392},
+
     "Kefir magro": {"protein": 3.3, "kcal": 43},
+
     "Cornflakes": {"carbs": 84, "kcal": 370},
-    "Cornflakes Gluten Free": {"carbs": 85, "kcal": 370},
-    "Farina d'avena Gluten Free": {"carbs": 60, "kcal": 375},
-    "Fiocchi d'avena Gluten Free": {"carbs": 13, "kcal": 367},
+
+    "Cornflakes s.g.": {"carbs": 85, "kcal": 370},
+
+    "Farina d'avena s.g.": {"carbs": 60, "kcal": 375},
+
+    "Fiocchi d'avena s.g.": {"carbs": 13, "kcal": 367},
+
     "Pane integrale": {"carbs": 40, "kcal": 230},
+
     "Fiocchi d'avena": {"carbs": 60, "kcal": 370},
+
     "Farina d'avena": {"carbs": 66, "kcal": 375},
+
     "Frutta": {"carbs": 13, "kcal": 52},
+
     "Gallette di riso": {"carbs": 80, "kcal": 381, "unit": 7},
+
     "Weetabix": {"carbs": 69, "kcal": 362, "unit": 19},
+
     "Yogurt greco": {"protein": 10, "kcal": 60},
+
     "Yogurt magro": {"protein": 5, "kcal": 63},
+
     "Uova": {"protein": 13, "kcal": 143, "unit": 60},
+
     "Albume": {"protein": 10, "kcal": 50},
+
     "Bresaola": {"protein": 32, "kcal": 151},
+
     "Prosciutto cotto": {"protein": 20, "kcal": 145},
+
     "Prosciutto crudo": {"protein": 28, "kcal": 215},
+
     "Ricotta light": {"protein": 11, "kcal": 136},
+
     "Proteine in polvere": {"protein": 78, "kcal": 390},
+
     "Burro di arachidi": {"fat": 50, "kcal": 588},
+
     "Mandorle": {"fat": 49, "kcal": 600},
+
     "Noci": {"fat": 65, "kcal": 654},
+
     "Avocado": {"fat": 15, "kcal": 160},
+
     "Cioccolato fondente": {"fat": 35, "kcal": 550},
+
 }
 
-FOODS_PASTI = {
-    "Bulgur": {"carbs": 75, "kcal": 340},
-    "Farina di mais(polenta)": {"carbs": 77, "kcal": 360},
-    "Olio di cocco": {"fat": 100, "kcal": 900},
-    "Fegato di vitello": {"protein": 20, "kcal": 134},
-    "Feta": {"fat": 21, "kcal": 264},
-    "Piselli surgelati": {"carbs": 11, "kcal": 68},
-    "Farina di ceci": {"carbs": 58, "kcal": 364},
-    "Fiocchi di latte(magri)": {"protein": 10, "kcal": 80},
-    "Olive": {"fat": 15, "kcal": 145},
-    "Edamame": {"carbs": 10, "kcal": 121},
+
+
+FOODS_PASTI = {"Bulgur": {"carbs": 75, "kcal": 340},
+
+     "Farina di mais(polenta)": {"carbs": 77, "kcal": 360},
+
+     "Olio di cocco": {"fat": 100, "kcal": 900},
+
+     "Fegato di vitello": {"protein": 20, "kcal": 134},
+
+     "Feta": {"fat": 21, "kcal": 264},
+
+      "Piselli surgelati": {"carbs": 11, "kcal": 68},
+
+     "Farina di ceci": {"carbs": 58, "kcal": 364},
+
+     "Fiocchi di latte(magri)": {"protein": 10, "kcal": 80},
+
+     "Olive": {"fat": 15, "kcal": 145},
+
+     "Edamame": {"carbs": 10, "kcal": 121},
+
     "Tonno in scatola al naturale(sgocciolato)": {"protein": 23, "kcal": 103},
-    "Tonno in scatola in olio d'oliva(sgocciolato)": {"protein": 25, "kcal": 198},
+
+     "Tonno in scatola in olio d'oliva(sgocciolato)": {"protein": 25, "kcal": 198},
+
     "Coscia di pollo(spellata)": {"protein": 20, "kcal": 167},
+
+     "Coscia di pollo(spellata)": {"protein": 20, "kcal": 167},
+
     "Fagioli secchi": {"carbs": 60, "kcal": 333},
+
     "ceci secchi": {"carbs": 53, "kcal": 353},
+
     "Lenticchie secche": {"carbs": 61, "kcal": 364},
-    "Seitan": {"protein": 25, "kcal": 133},
-    "Tempeh": {"protein": 19, "kcal": 193},
+
+     "Seitan": {"protein": 25, "kcal": 133},
+
+     "Tempeh": {"protein": 19, "kcal": 193},
+
     "Farro": {"carbs": 67, "kcal": 335},
+
     "Pasta integrale": {"carbs": 70, "kcal": 350},
+
     "Pasta di mais": {"carbs": 64, "kcal": 362},
+
     "Quinoa": {"carbs": 70, "kcal": 368},
+
     "Piadina grano saraceno": {"carbs": 50, "kcal": 280},
-    "Gnocchi di patate Gluten Free": {"carbs": 28, "kcal": 130},
+
+    "Gnocchi di patate s.g.": {"carbs": 28, "kcal": 130},
+
     "Riso": {"carbs": 78, "kcal": 360},
+
     "Cous cous": {"carbs": 77, "kcal": 376},
+
     "Patate crude": {"carbs": 17, "kcal": 80},
+
     "Gnocchi di patate": {"carbs": 30, "kcal": 150},
+
     "Pane integrale": {"carbs": 40, "kcal": 230},
+
     "Piadina confezionata": {"carbs": 50, "kcal": 305},
+
     "Carne bianca": {"protein": 22, "kcal": 120},
+
     "Carne rossa": {"protein": 26, "kcal": 250},
+
     "Pesce bianco": {"protein": 19, "kcal": 96},
+
     "Pesce grasso": {"protein": 20, "kcal": 208},
+
     "Tofu": {"protein": 15, "kcal": 145},
+
     "Uova": {"protein": 13, "kcal": 143, "unit": 60},
+
     "Albume": {"protein": 11, "kcal": 52},
+
     "Mozzarella light": {"protein": 22, "kcal": 170},
+
     "Bresaola": {"protein": 32, "kcal": 151},
+
     "Prosciutto cotto": {"protein": 20, "kcal": 145},
+
     "Prosciutto crudo": {"protein": 28, "kcal": 215},
+
     "Ricotta light": {"protein": 11, "kcal": 136},
+
     "Olio EVO": {"fat": 100, "kcal": 900},
+
     "Avocado": {"fat": 15, "kcal": 160},
+
 }
+
+
 
 KCAL_PER_GRAM = {"carbs": 4, "protein": 4, "fat": 9}
 
