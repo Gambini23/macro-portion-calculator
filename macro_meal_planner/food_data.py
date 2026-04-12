@@ -15,7 +15,7 @@ FOODS_COLAZIONE = {
     "Cornflakes": {"carbs": 84, "kcal": 370},
     "Cornflakes Gluten Free": {"carbs": 85, "kcal": 370},
     "Farina d'avena Gluten Free": {"carbs": 60, "kcal": 375},
-    "Fiocchi d'avena Gluten Free": {"carbs": 13, "kcal": 367},
+    "Fiocchi d'avena Gluten Free": {"carbs": 60, "kcal": 367},
     "Pane integrale": {"carbs": 40, "kcal": 230},
     "Fiocchi d'avena": {"carbs": 60, "kcal": 370},
     "Farina d'avena": {"carbs": 66, "kcal": 375},
@@ -78,11 +78,5 @@ FOODS_PASTI = {
     "Albume": {"protein": 11, "kcal": 52},
     "Mozzarella light": {"protein": 22, "kcal": 170},
     "Bresaola": {"protein": 32, "kcal": 151},
-    "Prosciutto cotto": {"protein": 20, "kcal": 145},
-    "Prosciutto crudo": {"protein": 28, "kcal": 215},
-    "Ricotta light": {"protein": 11, "kcal": 136},
-    "Olio EVO": {"fat": 100, "kcal": 900},
-    "Avocado": {"fat": 15, "kcal": 160},
-}
-
+    "Prosciutto cotto": {"protein": 20, "kcal": 14
 KCAL_PER_GRAM = {"carbs": 4, "protein": 4, "fat": 9}
