@@ -1,6 +1,5 @@
 from fpdf import FPDF
 import tempfile
-from datetime import date
 
 # Etichette leggibili per i macronutrienti
 MACRO_LABELS = {"carbs": "Carboidrati", "protein": "Proteine", "fat": "Grassi"}
@@ -32,10 +31,9 @@ def generate_pdf(pasti, kcal_total, split, distrib, disclaimer_custom=None, cons
     # PAGINA 1 – RIEPILOGO PASTI
     # ────────────────────────────────────────────────────────────────────────
     pdf.add_page()
-    oggi = date.today().strftime("%d/%m/%Y")
     header(
-        f"PIANO PASTI  –  {int(kcal_total)} kcal/giorno",
-        f"Data: {oggi}  |  Carbo {int(split['carbs']*100)}%  |  Proteine {int(split['protein']*100)}%  |  Grassi {int(split['fat']*100)}%"
+        f"PIANO PASTI - {int(kcal_total)} kcal/giorno",
+        f"Carbo {int(split['carbs']*100)}%  |  Proteine {int(split['protein']*100)}%  |  Grassi {int(split['fat']*100)}%"
     )
 
     for pasto, data in pasti.items():
@@ -47,7 +45,7 @@ def generate_pdf(pasti, kcal_total, split, distrib, disclaimer_custom=None, cons
         pdf.set_font(f_std, "B", 12)
         pdf.cell(
             0, 8,
-            c(f"  {pasto.upper()}  –  {kcal_p} kcal"
+            c(f"  {pasto.upper()} - {kcal_p} kcal"
               f"  [C:{int(m_p['carbs']*100)}%  P:{int(m_p['protein']*100)}%  G:{int(m_p['fat']*100)}%]"),
             ln=True, fill=True
         )
