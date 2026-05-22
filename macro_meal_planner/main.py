@@ -1,110 +1,124 @@
+
 import streamlit as st
 from food_suggestions import suggest_foods
 from pdf_generator import generate_pdf
 
-# --- FUNZIONE CALCOLO FISIOLOGICO ---
-def calcola_bmi_bmr_tdee():
-    st.header("Calcolo BMI, BMR e TDEE")
-    col_fis1, col_fis2 = st.columns(2)
-    with col_fis1:
-        sesso = st.selectbox("Sesso", ["Maschio", "Femmina"])
-        eta = st.number_input("Età", min_value=10, max_value=100, value=30)
-    with col_fis2:
-        peso = st.number_input("Peso (kg)", min_value=30.0, max_value=200.0, value=70.0)
+# ── HELPER: calcolo fisiologico ─────────────────────────────────────────────
+def calcola_tdee() -> int:
+    st.subheader("Calcolo BMI · BMR · TDEE")
+    col1, col2 = st.columns(2)
+    with col1:
+        sesso  = st.selectbox("Sesso", ["Maschio", "Femmina"])
+        eta    = st.number_input("Età", min_value=10, max_value=100, value=30)
+    with col2:
+        peso   = st.number_input("Peso (kg)",    min_value=30.0,  max_value=200.0, value=70.0)
         altezza = st.number_input("Altezza (cm)", min_value=120.0, max_value=220.0, value=170.0)
+
     if sesso == "Maschio":
         bmr = (10 * peso) + (6.25 * altezza) - (5 * eta) + 5
     else:
         bmr = (10 * peso) + (6.25 * altezza) - (5 * eta) - 161
-    tdee = bmr * 1.4
-    st.info(f"**BMI**: {round(peso/((altezza/100)**2),1)} | **BMR**: {int(bmr)} kcal | **TDEE**: {int(tdee)} kcal")
-    return int(tdee)
 
-st.set_page_config(page_title="Macro Master Planner", layout="wide")
-st.title("Meal Macro Planner Personalizzato 📊")
+    tdee = int(bmr * 1.4)
+    bmi  = round(peso / ((altezza / 100) ** 2), 1)
+    st.info(f"**BMI:** {bmi}  |  **BMR:** {int(bmr)} kcal  |  **TDEE stimato:** {tdee} kcal")
+    return tdee
 
-# Inizializzazione session_state
-if 'raw_pasti' not in st.session_state: st.session_state.raw_pasti = None
+# ── APP ─────────────────────────────────────────────────────────────────────
+st.set_page_config(page_title="Macro Master Planner", layout="wide", page_icon="📊")
+st.title("📊 Meal Macro Planner")
+st.caption("Pianifica i tuoi pasti, bilancia i macronutrienti e scarica il PDF personalizzato.")
 
-# --- 1. INPUT CALORIE ---
-if st.checkbox("Calcola fabbisogno automatico"):
-    kcal_total = st.number_input("Kcal Obiettivo:", value=calcola_bmi_bmr_tdee())
-else:
-    kcal_total = st.number_input("Inserisci manualmente le kcal giornaliere", min_value=800, max_value=5000, value=1600)
+# Session state
+if "raw_pasti" not in st.session_state:
+    st.session_state.raw_pasti = None
+
+# ── 1. CALORIE ───────────────────────────────────────────────────────────────
+with st.expander("⚙️ Impostazioni Calorie", expanded=True):
+    usa_calcolo = st.checkbox("Calcola fabbisogno automaticamente (Harris-Benedict × 1.4)")
+    if usa_calcolo:
+        tdee_calcolato = calcola_tdee()
+        kcal_total = st.number_input("Kcal obiettivo (modifica se vuoi)", min_value=800, max_value=5000, value=tdee_calcolato)
+    else:
+        kcal_total = st.number_input("Kcal giornaliere", min_value=800, max_value=5000, value=1800)
 
 st.divider()
 
-# --- 2. DISTRIBUZIONE CALORIE ---
-st.subheader("1️⃣ Distribuzione % Calorie")
+# ── 2. DISTRIBUZIONE CALORIE ─────────────────────────────────────────────────
+st.subheader("1️⃣ Distribuzione % tra i pasti")
 c1, c2, c3, c4, c5 = st.columns(5)
-p_col = c1.slider("% Colazione", 0, 100, 20)
-p_spt = c2.slider("% Spuntino", 0, 100, 5)
-p_prz = c3.slider("% Pranzo", 0, 100, 35)
-p_mer = c4.slider("% Merenda", 0, 100, 7)
-p_cen = c5.slider("% Cena", 0, 100, 33)
+p_col = c1.slider("Colazione",  0, 100, 20)
+p_spt = c2.slider("Spuntino",   0, 100,  5)
+p_prz = c3.slider("Pranzo",     0, 100, 35)
+p_mer = c4.slider("Merenda",    0, 100,  7)
+p_cen = c5.slider("Cena",       0, 100, 33)
 
-elenco_pasti = {"Colazione": p_col, "Spuntino": p_spt, "Pranzo": p_prz, "Merenda": p_mer, "Cena": p_cen}
+totale_perc = p_col + p_spt + p_prz + p_mer + p_cen
+if totale_perc != 100:
+    st.warning(f"⚠️ La somma delle % è **{totale_perc}%** — deve essere esattamente 100%.")
+
+elenco_pasti = {
+    "Colazione": p_col, "Spuntino": p_spt,
+    "Pranzo": p_prz,    "Merenda": p_mer, "Cena": p_cen
+}
 
 st.divider()
 
-# --- 3. MODULAZIONE MACRO LIVE ---
-st.subheader("2️⃣ Modula i Macro e controlla i Totali")
+# ── 3. MACRO PER PASTO ───────────────────────────────────────────────────────
+st.subheader("2️⃣ Modulazione macro per pasto")
 
-# INIZIALIZZIAMO QUI LE VARIABILI TOTALI
-tot_carbo_g, tot_prote_g, tot_grass_g = 0.0, 0.0, 0.0
+tot_carbo_g = tot_prote_g = tot_grass_g = 0.0
 config_finale_macro = {}
 
-col_sliders, col_dashboard = st.columns([0.6, 0.4])
+col_sliders, col_dash = st.columns([0.6, 0.4])
 
 with col_sliders:
     for nome, perc in elenco_pasti.items():
-        if perc > 0:
-            kcal_pasto = kcal_total * (perc / 100)
-            with st.expander(f"Modifica {nome} ({int(kcal_pasto)} kcal)", expanded=True):
-                ca, pr, gr = st.columns(3)
-                # Chiavi univoche per evitare conflitti
-                c_p = ca.slider(f"% Carb", 0, 100, 50, key=f"c_{nome}")
-                p_p = pr.slider(f"% Prot", 0, 100, 20, key=f"p_{nome}")
-                g_p = gr.slider(f"% Gras", 0, 100, 30, key=f"g_{nome}")
-                
-                # Calcolo grammi istantaneo del singolo pasto
-                g_c = (kcal_pasto * (c_p/100)) / 4
-                g_p_gr = (kcal_pasto * (p_p/100)) / 4
-                g_f = (kcal_pasto * (g_p/100)) / 9
-                
-                # Feedback immediato a Marco
-                st.markdown(f"**Target Grammi:** :orange[{g_c:.1f}g Carbo] | :blue[{g_p_gr:.1f}g Prot] | :green[{g_f:.1f}g Grassi]")
-                
-                if (c_p + p_p + g_p) != 100:
-                    st.error(f"La somma dei macro per {nome} deve fare 100% (attuale: {c_p + p_p + g_p}%)")
-                
-                # Aggiorniamo i totali generali
-                tot_carbo_g += g_c
-                tot_prote_g += g_p_gr
-                tot_grass_g += g_f
-                
-                config_finale_macro[nome] = {
-                    "split": {"carbs": c_p/100, "protein": p_p/100, "fat": g_p/100}, 
-                    "grammi": (g_c, g_p_gr, g_f)
-                }
+        if perc <= 0:
+            continue
+        kcal_pasto = kcal_total * (perc / 100)
+        with st.expander(f"**{nome}** — {int(kcal_pasto)} kcal ({perc}%)", expanded=True):
+            ca, pr, gr = st.columns(3)
+            c_p = ca.slider("% Carbo",   0, 100, 50, key=f"c_{nome}")
+            p_p = pr.slider("% Proteine", 0, 100, 20, key=f"p_{nome}")
+            g_p = gr.slider("% Grassi",  0, 100, 30, key=f"g_{nome}")
 
-# La dashboard ora riceve i totali sommati correttamente dal ciclo sopra
-with col_dashboard:
+            g_c   = (kcal_pasto * (c_p / 100)) / 4
+            g_p_g = (kcal_pasto * (p_p / 100)) / 4
+            g_f   = (kcal_pasto * (g_p / 100)) / 9
+
+            st.markdown(
+                f"→ :orange[**{g_c:.1f}g** Carbo]  "
+                f":blue[**{g_p_g:.1f}g** Proteine]  "
+                f":green[**{g_f:.1f}g** Grassi]"
+            )
+
+            somma = c_p + p_p + g_p
+            if somma != 100:
+                st.error(f"Somma macro: {somma}% — deve fare 100%")
+
+            tot_carbo_g += g_c
+            tot_prote_g += g_p_g
+            tot_grass_g += g_f
+
+            config_finale_macro[nome] = {
+                "split":  {"carbs": c_p / 100, "protein": p_p / 100, "fat": g_p / 100},
+                "grammi": (g_c, g_p_g, g_f),
+            }
+
+with col_dash:
     st.markdown("### Riepilogo Giornaliero")
-    st.metric("Carboidrati Totali", f"{round(tot_carbo_g, 1)} g")
-    st.metric("Proteine Totali", f"{round(tot_prote_g, 1)} g")
-    st.metric("Grassi Totali", f"{round(tot_grass_g, 1)} g")
-    
-    # Calcolo calorie totali basato sui grammi (per verifica)
     kcal_check = (tot_carbo_g * 4) + (tot_prote_g * 4) + (tot_grass_g * 9)
-    st.caption(f"Calorie totali calcolate: {int(kcal_check)} kcal")
+    st.metric("🟠 Carboidrati",  f"{round(tot_carbo_g, 1)} g")
+    st.metric("🔵 Proteine",     f"{round(tot_prote_g, 1)} g")
+    st.metric("🟢 Grassi",       f"{round(tot_grass_g, 1)} g")
+    st.caption(f"Calorie calcolate: **{int(kcal_check)} kcal**")
 
 st.divider()
 
-# --- 4. TESTI PERSONALIZZABILI ---
-st.subheader("3️⃣ Personalizza Testi PDF")
-expander_testi = st.expander("Modifica Consigli e Disclaimer", expanded=False)
-with expander_testi:
+# ── 4. TESTI PDF ─────────────────────────────────────────────────────────────
+st.subheader("3️⃣ Testi personalizzabili nel PDF")
+with st.expander("✏️ Modifica consigli e disclaimer"):
     default_consigli = """Metodi di cottura consigliati:
 - Preferisci vapore, forno, friggitrice ad aria, griglia, padella antiaderente, cotture a bassa temperatura o sottovuoto.
 
@@ -130,89 +144,102 @@ Alimenti da limitare o evitare:
 
 Buone abitudini:
 - Mangia lentamente, non saltare pasti, pesa le porzioni.
-- Bilancia ogni pasto con fonti di proteine, carboidrati e grassi.
-- Prepara con cura, evita improvvisazioni."""
+- Bilancia ogni pasto con fonti di proteine, carboidrati e grassi."""
+
     default_discl = """Il presente consiglio alimentare ha esclusivamente finalità informative ed esemplificative.
-Le combinazioni alimentari, le frequenze settimanali e le porzioni suggerite sono pensate
-per offrire un orientamento generale sulla distribuzione dei macronutrienti e non
-costituiscono in alcun modo una prescrizione o una somministrazione dietetica
-personalizzata.
-Le indicazioni contenute nel documento non tengono conto di eventuali allergie,
-intolleranze alimentari, patologie pregresse o condizioni cliniche specifiche, e pertanto
-non devono essere utilizzate come sostitutive del parere professionale di figure sanitarie
-abilitate, quali medici dietologi, biologi nutrizionisti o dietisti.
-Le dosi riportate sono state inserite a scopo didattico per fornire un esempio pratico
-riferito a un soggetto sano, di sesso ed età definiti, con finalità puramente illustrative in
-ambito sportivo e educativo.
-Le indicazioni nutrizionali qui esposte si basano su conoscenze acquisite tramite
-formazione in nutrizione sportiva, certificata presso Accademia Italiana Fitness e Sport
-Science Lab, nonché sugli attuali studi universitari in corso presso il corso di laurea in
-Scienze dell'Alimentazione e Gastronomia (Classe L-26) dell’Università Telematica San
-Raffaele.
-L’autore declina ogni responsabilità derivante da un uso improprio o non conforme delle
-informazioni contenute nel documento. Per una valutazione alimentare personalizzata, si
-raccomanda di rivolgersi a professionisti abilitati ai sensi della normativa vigente.
+Le combinazioni alimentari, le frequenze settimanali e le porzioni suggerite sono pensate per offrire un orientamento generale sulla distribuzione dei macronutrienti e non costituiscono in alcun modo una prescrizione o una somministrazione dietetica personalizzata.
+Le indicazioni contenute nel documento non tengono conto di eventuali allergie, intolleranze alimentari, patologie pregresse o condizioni cliniche specifiche, e pertanto non devono essere utilizzate come sostitutive del parere professionale di figure sanitarie abilitate, quali medici dietologi, biologi nutrizionisti o dietisti.
+Le dosi riportate sono state inserite a scopo didattico per fornire un esempio pratico riferito a un soggetto sano, con finalità puramente illustrative in ambito sportivo e educativo.
+L'autore declina ogni responsabilità derivante da un uso improprio o non conforme delle informazioni contenute nel documento. Per una valutazione alimentare personalizzata, si raccomanda di rivolgersi a professionisti abilitati."""
 
-
-"""
-    testo_consigli = st.text_area("Pagina Consigli Alimentari:", value=default_consigli, height=150)
-    testo_discl = st.text_area("Pagina Disclaimer:", value=default_discl, height=150)
+    testo_consigli = st.text_area("Consigli alimentari:", value=default_consigli, height=200)
+    testo_discl    = st.text_area("Disclaimer:",          value=default_discl,    height=150)
 
 st.divider()
 
-# --- 5. TASTO DI GENERAZIONE (Mancava!) ---
-if st.button("🚀 GENERA LISTA ALIMENTI", type="primary"):
+# ── 5. GENERA LISTA ──────────────────────────────────────────────────────────
+errori = any(
+    (config_finale_macro.get(n, {}).get("split", {}).get("carbs", 0) * 100 +
+     config_finale_macro.get(n, {}).get("split", {}).get("protein", 0) * 100 +
+     config_finale_macro.get(n, {}).get("split", {}).get("fat", 0) * 100) != 100
+    for n, p in elenco_pasti.items() if p > 0 and n in config_finale_macro
+)
+
+if st.button("🚀 GENERA LISTA ALIMENTI", type="primary", disabled=(totale_perc != 100 or errori)):
     pasti_struttura = {}
     for nome, perc in elenco_pasti.items():
-        if perc > 0:
-            kcal_p = kcal_total * (perc / 100)
-            m = config_finale_macro[nome]
-            # Chiamata alla funzione che suggerisce i cibi dai tuoi dizionari
-            foods = suggest_foods(kcal_p, nome, m["split"])
-            pasti_struttura[nome] = {
-                "kcal": kcal_p, 
-                "macros": {"carbs": round(m["grammi"][0],1), "protein": round(m["grammi"][1],1), "fat": round(m["grammi"][2],1)}, 
-                "foods": foods, 
-                "split": m["split"]
-            }
+        if perc <= 0:
+            continue
+        kcal_p = kcal_total * (perc / 100)
+        m = config_finale_macro[nome]
+        foods = suggest_foods(kcal_p, nome, m["split"])
+        pasti_struttura[nome] = {
+            "kcal":   kcal_p,
+            "macros": {
+                "carbs":   round(m["grammi"][0], 1),
+                "protein": round(m["grammi"][1], 1),
+                "fat":     round(m["grammi"][2], 1),
+            },
+            "foods": foods,
+            "split": m["split"],
+        }
     st.session_state.raw_pasti = pasti_struttura
+    st.success("✅ Lista generata! Scorri in basso per la revisione.")
 
-# --- 6. REVISIONE E DOWNLOAD (Sempre visibile se raw_pasti esiste) ---
+# ── 6. REVISIONE E PDF ───────────────────────────────────────────────────────
 if st.session_state.raw_pasti:
     st.divider()
     st.header("🛒 Revisione Alimenti")
-    st.info("Deseleziona gli alimenti che NON vuoi nel PDF.")
-    
+    st.caption("Deseleziona gli alimenti che NON vuoi includere nel PDF.")
+
+    MACRO_LABELS = {"protein": "Proteine", "carbs": "Carboidrati", "fat": "Grassi"}
     pasti_per_pdf = {}
+
     for pasto, data in st.session_state.raw_pasti.items():
-        with st.expander(f"Seleziona cibi per {pasto}", expanded=True):
-            alimenti_filtrati_pasto = {}
+        with st.expander(f"**{pasto}**  —  {int(data['kcal'])} kcal", expanded=True):
+            alimenti_filtrati = {}
             for m_type, f_list in data["foods"].items():
                 items = [i.strip() for i in f_list.split("|") if i.strip()]
+                if not items:
+                    alimenti_filtrati[m_type] = ""
+                    continue
+                label = MACRO_LABELS.get(m_type, m_type.capitalize())
+                st.markdown(f"**{label}**")
                 kept = []
-                st.markdown(f"**{m_type.capitalize()}**")
                 cols = st.columns(3)
                 for idx, item in enumerate(items):
                     with cols[idx % 3]:
-                        # Usiamo la checkbox. Se tolta, il cibo non va nel PDF ma resta visibile qui.
                         if st.checkbox(item, value=True, key=f"rev_{pasto}_{m_type}_{item}"):
                             kept.append(item)
-                alimenti_filtrati_pasto[m_type] = " | ".join(kept)
-            
-            pasti_per_pdf[pasto] = {**data, "foods": alimenti_filtrati_pasto}
+                alimenti_filtrati[m_type] = " | ".join(kept)
+            pasti_per_pdf[pasto] = {**data, "foods": alimenti_filtrati}
 
-    if st.button("📄 CREA PDF FINALE"):
-        kcal_fatte = (tot_carbo_g * 4) + (tot_prote_g * 4) + (tot_grass_g * 9)
-        split_m = {"carbs": (tot_carbo_g * 4)/kcal_fatte, "protein": (tot_prote_g * 4)/kcal_fatte, "fat": (tot_grass_g * 9)/kcal_fatte} if kcal_fatte > 0 else {"carbs": 0.5, "protein": 0.2, "fat": 0.3}
-        
+    st.divider()
+    if st.button("📄 CREA PDF FINALE", type="primary"):
+        kcal_tot = (tot_carbo_g * 4) + (tot_prote_g * 4) + (tot_grass_g * 9)
+        if kcal_tot > 0:
+            split_m = {
+                "carbs":   (tot_carbo_g * 4) / kcal_tot,
+                "protein": (tot_prote_g * 4) / kcal_tot,
+                "fat":     (tot_grass_g * 9) / kcal_tot,
+            }
+        else:
+            split_m = {"carbs": 0.5, "protein": 0.2, "fat": 0.3}
+
         path = generate_pdf(
-            pasti_per_pdf, 
-            kcal_total, 
-            split_m, 
-            {k: v/100 for k,v in elenco_pasti.items()}, 
+            pasti_per_pdf,
+            kcal_total,
+            split_m,
+            {k: v / 100 for k, v in elenco_pasti.items()},
             disclaimer_custom=testo_discl,
-            consigli_custom=testo_consigli
+            consigli_custom=testo_consigli,
         )
-        
+
         with open(path, "rb") as f:
-            st.download_button("💾 SCARICA ORA", f, file_name="piano_pasti.pdf")
+            st.download_button(
+                label="💾 SCARICA PDF",
+                data=f,
+                file_name="piano_pasti.pdf",
+                mime="application/pdf",
+            )
+        st.success("✅ PDF pronto!")
