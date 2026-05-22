@@ -1,4 +1,3 @@
-
 import streamlit as st
 from food_suggestions import suggest_foods
 from pdf_generator import generate_pdf
@@ -77,7 +76,7 @@ with col_sliders:
         if perc <= 0:
             continue
         kcal_pasto = kcal_total * (perc / 100)
-        with st.expander(f"**{nome}** — {int(kcal_pasto)} kcal ({perc}%)", expanded=True):
+        with st.expander(f"**{nome}** - {int(kcal_pasto)} kcal ({perc}%)", expanded=True):
             ca, pr, gr = st.columns(3)
             c_p = ca.slider("% Carbo",   0, 100, 50, key=f"c_{nome}")
             p_p = pr.slider("% Proteine", 0, 100, 20, key=f"p_{nome}")
@@ -196,7 +195,7 @@ if st.session_state.raw_pasti:
     pasti_per_pdf = {}
 
     for pasto, data in st.session_state.raw_pasti.items():
-        with st.expander(f"**{pasto}**  —  {int(data['kcal'])} kcal", expanded=True):
+        with st.expander(f"**{pasto}** - {int(data['kcal'])} kcal", expanded=True):
             alimenti_filtrati = {}
             for m_type, f_list in data["foods"].items():
                 items = [i.strip() for i in f_list.split("|") if i.strip()]
