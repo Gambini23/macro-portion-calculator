@@ -13,14 +13,30 @@ def calcola_tdee() -> int:
         peso   = st.number_input("Peso (kg)",    min_value=30.0,  max_value=200.0, value=70.0)
         altezza = st.number_input("Altezza (cm)", min_value=120.0, max_value=220.0, value=170.0)
 
+    livello = st.selectbox("Livello di attivita'", [
+        "Sedentario (lavoro desk, nessun esercizio)",
+        "Poco attivo (esercizio leggero 1-3 giorni/sett.)",
+        "Moderatamente attivo (esercizio 3-5 giorni/sett.)",
+        "Molto attivo (esercizio intenso 6-7 giorni/sett.)",
+        "Estremamente attivo (atleta / lavoro fisico pesante)",
+    ])
+    MOLTIPLICATORI = {
+        "Sedentario (lavoro desk, nessun esercizio)":           1.2,
+        "Poco attivo (esercizio leggero 1-3 giorni/sett.)":    1.375,
+        "Moderatamente attivo (esercizio 3-5 giorni/sett.)":   1.55,
+        "Molto attivo (esercizio intenso 6-7 giorni/sett.)":   1.725,
+        "Estremamente attivo (atleta / lavoro fisico pesante)": 1.9,
+    }
+    pal = MOLTIPLICATORI[livello]
+
     if sesso == "Maschio":
         bmr = (10 * peso) + (6.25 * altezza) - (5 * eta) + 5
     else:
         bmr = (10 * peso) + (6.25 * altezza) - (5 * eta) - 161
 
-    tdee = int(bmr * 1.4)
+    tdee = int(bmr * pal)
     bmi  = round(peso / ((altezza / 100) ** 2), 1)
-    st.info(f"**BMI:** {bmi}  |  **BMR:** {int(bmr)} kcal  |  **TDEE stimato:** {tdee} kcal")
+    st.info(f"**BMI:** {bmi}  |  **BMR:** {int(bmr)} kcal  |  **TDEE stimato:** {tdee} kcal  (x{pal})")
     return tdee
 
 # ── APP ─────────────────────────────────────────────────────────────────────
