@@ -44,7 +44,7 @@ FOODS_COLAZIONE = {
 }
 
 FOODS_PASTI = {
-    "Gelato (generico)": {"fat": 10, "kcal": 210},
+    "Gelato ": {"fat": 10, "kcal": 210},
     "Bulgur": {"carbs": 75, "kcal": 340},
     "Farina di mais(polenta)": {"carbs": 77, "kcal": 360},
     "Olio di cocco": {"fat": 100, "kcal": 900},
